@@ -165,8 +165,10 @@ Hay que resolverlas antes o durante la implementación — no son bugs de códig
 | 4 | Español rioplatense (voseo y "talles") en varios textos | `Footer.tsx`, `Newsletter.tsx`, `About.tsx` | Ver **4.1 Localización a Perú** — es obligatorio, no opcional |
 | 5 | Carrito muestra badge fijo "2" sin funcionalidad | `Navbar.tsx` | Decidir: ocultar el badge o implementar carrito (fuera de alcance actual) |
 | 6 | Botón de buscador sin comportamiento | `Navbar.tsx` | Ver HU-05 |
-| 7 | *(descartado)* Testimonios con ciudades argentinas | `Testimonials.tsx` | Ya no aplica: la sección no se implementa |
-| 10 | "Nació en 2022" vs. "3 años vistiendo sueños" vs. "© 2026" | `About.tsx`, `Hero.tsx` | Con 2022 como origen, en 2026 son **4 años**. Corregir el stat del Hero |
+| 7 | "Nació en 2022" vs. "3 años vistiendo sueños" vs. "© 2026" | `About.tsx`, `Hero.tsx` | Con 2022 como origen, en 2026 son **4 años**. Corregir el stat del Hero |
+| 8 | *(descartado)* Testimonios con ciudades argentinas | `Testimonials.tsx` | Ya no aplica: la sección no se implementa |
+| 9 | *(fase 2)* Credenciales demo visibles en pantalla de login | `Login.tsx` | Aceptable en demo académica; quitar antes de cualquier despliegue real |
+| 10 | *(fase 2)* El dropdown de estado en Pedidos abre con `group-hover` | `Orders.tsx` | No funciona con teclado ni en táctil |
 
 ---
 
@@ -208,8 +210,6 @@ Estos textos del prototipo son correctos y **no deben perderse** al implementar:
 | Footer | `hola@novastyle.pe` |
 
 La metadata de [app/layout.tsx](../app/layout.tsx) ya cumple ("Lo último en moda y accesorios **en Perú**") — mantenerla al aplicar HU-03.
-| 8 | *(fase 2)* Credenciales demo visibles en pantalla de login | `Login.tsx` | Aceptable en demo académica; quitar antes de cualquier despliegue real |
-| 9 | *(fase 2)* El dropdown de estado en Pedidos abre con `group-hover` | `Orders.tsx` | No funciona con teclado ni en táctil |
 
 ---
 
@@ -321,7 +321,7 @@ La metadata de [app/layout.tsx](../app/layout.tsx) ya cumple ("Lo último en mod
 - Entradas animadas escalonadas (0.1s / 0.3s / 0.6s).
 - El marquee respeta `prefers-reduced-motion`.
 - Se conserva "Colección Verano 2026 · **Hecho en Perú**" y el stat "100% Producción local" (ver 4.1).
-- El stat de antigüedad dice **"4 años"**, coherente con "nació en 2022" de About (resuelve inconsistencia #10).
+- El stat de antigüedad dice **"4 años"**, coherente con "nació en 2022" de About (resuelve inconsistencia #7).
 
 ---
 
