@@ -227,6 +227,18 @@ footer[id],
   }
 }
 
+/*
+ * En dispositivos táctiles (sin hover) las acciones que en escritorio aparecen
+ * al pasar el cursor se muestran siempre: "revelar al hover" no funciona al
+ * tocar y dejaría los botones inalcanzables.
+ */
+@media (hover: none) {
+  .touch-reveal {
+    transform: none;
+    opacity: 1;
+  }
+}
+
 /* Scrollbars ocultas en todo el sitio, como en el prototipo. */
 * {
   scrollbar-width: none;

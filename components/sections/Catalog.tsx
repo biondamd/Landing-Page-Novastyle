@@ -73,7 +73,7 @@ export default function Catalog({ products, categories }: CatalogProps) {
                 type="button"
                 onClick={() => changeFilter(option)}
                 aria-pressed={active}
-                className={`border px-5 py-2 text-sm transition-all duration-200 ${
+                className={`inline-flex min-h-11 items-center border px-5 text-sm transition-all duration-200 ${
                   active
                     ? "border-foreground bg-foreground text-primary-foreground"
                     : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
@@ -130,7 +130,7 @@ export default function Catalog({ products, categories }: CatalogProps) {
                         </span>
                       )}
 
-                      <div className="absolute right-3 top-3 flex translate-x-8 flex-col gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                      <div className="touch-reveal absolute right-3 top-3 flex translate-x-8 flex-col gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
                         <button
                           type="button"
                           onClick={() => toggleWishlist(product.id)}
@@ -140,14 +140,14 @@ export default function Catalog({ products, categories }: CatalogProps) {
                               ? `Quitar ${product.name} de favoritos`
                               : `Añadir ${product.name} a favoritos`
                           }
-                          className={`flex h-8 w-8 items-center justify-center bg-background transition-colors ${
+                          className={`flex h-11 w-11 items-center justify-center bg-background transition-colors ${
                             wishlist.has(product.id)
                               ? "text-destructive"
                               : "text-foreground/60 hover:text-foreground"
                           }`}
                         >
                           <Heart
-                            size={14}
+                            size={16}
                             aria-hidden="true"
                             fill={wishlist.has(product.id) ? "currentColor" : "none"}
                           />
@@ -157,9 +157,9 @@ export default function Catalog({ products, categories }: CatalogProps) {
                           <button
                             type="button"
                             aria-label={`Añadir ${product.name} al carrito`}
-                            className="flex h-8 w-8 items-center justify-center bg-foreground text-primary-foreground transition-colors hover:bg-accent hover:text-foreground"
+                            className="flex h-11 w-11 items-center justify-center bg-foreground text-primary-foreground transition-colors hover:bg-accent hover:text-foreground"
                           >
-                            <ShoppingBag size={14} aria-hidden="true" />
+                            <ShoppingBag size={16} aria-hidden="true" />
                           </button>
                         )}
                       </div>
