@@ -127,6 +127,21 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+
+  /*
+   * Foco visible y consistente en todo lo interactivo (solo por teclado, no al
+   * hacer clic). Contorno oscuro sobre fondos claros; dentro de las secciones
+   * oscuras (bg-foreground) se invierte a claro para que siga viéndose.
+   */
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .bg-foreground :focus-visible {
+    outline-color: var(--background);
+  }
 }
 
 /*

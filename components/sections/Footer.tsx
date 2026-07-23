@@ -91,8 +91,9 @@ function FooterItem({ link, className = "" }: { link: FooterLink; className?: st
     );
   }
   // Pendiente: texto, no enlace. `title` avisa; no engaña con un href muerto.
+  // white/50 (5.26:1) queda más tenue que los enlaces activos, pero pasa AA.
   return (
-    <span className={`cursor-default text-white/40 ${className}`} title="Próximamente">
+    <span className={`cursor-default text-white/50 ${className}`} title="Próximamente">
       {link.label}
     </span>
   );

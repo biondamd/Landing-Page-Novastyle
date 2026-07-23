@@ -130,7 +130,7 @@ export default function Catalog({ products, categories }: CatalogProps) {
                         </span>
                       )}
 
-                      <div className="touch-reveal absolute right-3 top-3 flex translate-x-8 flex-col gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                      <div className="touch-reveal absolute right-3 top-3 flex translate-x-8 flex-col gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:translate-x-0 group-focus-within:opacity-100">
                         <button
                           type="button"
                           onClick={() => toggleWishlist(product.id)}
