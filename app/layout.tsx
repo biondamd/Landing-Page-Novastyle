@@ -25,9 +25,45 @@ const dmMono = DM_Mono({
   variable: "--font-dm-mono",
 });
 
+// Dominio de producción. Sin metadataBase, las rutas relativas de Open Graph
+// (la imagen) no podrían resolverse a URL absoluta, que es lo que exigen las
+// redes sociales al leer las etiquetas.
+const SITE_URL = "https://novastyle.pe";
+
+const TITLE = "Novastyle — Moda consciente hecha en Perú";
+const DESCRIPTION =
+  "Lo último en moda y accesorios en Perú. En Novastyle encuentras los looks que marcan tendencia. ¡Arma tu outfit hoy!";
+
 export const metadata: Metadata = {
-  title: "Novastyle Web | Tu Estilo, Tu Moda",
-  description: "Lo último en moda y accesorios en Perú. En Novastyle encuentras los looks que marcan tendencia. ¡Arma tu outfit hoy!",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: "Novastyle",
+  keywords: [
+    "moda peruana",
+    "ropa de mujer",
+    "catálogo virtual",
+    "moda consciente",
+    "producción local",
+    "Novastyle",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Novastyle",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/",
+    locale: "es_PE",
+    // La imagen la aporta app/opengraph-image.jpg por convención de archivo.
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
