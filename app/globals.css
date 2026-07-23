@@ -22,6 +22,10 @@
   --muted-foreground: #6b6459;
   --accent: #c8a97a;
   --accent-foreground: #1a1714;
+  /* Dorado más oscuro SOLO para texto sobre fondo claro: --accent da 2:1 sobre
+     el crema, muy por debajo de 4.5:1. Este alcanza 5.09:1. Los rellenos y
+     bordes siguen usando --accent. Sobre fondo oscuro, --accent ya contrasta. */
+  --accent-strong: #7e6435;
   --destructive: #c0392b;
   --destructive-foreground: #f7f4ef;
   --border: rgba(26, 23, 20, 0.12);
@@ -50,6 +54,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-strong: var(--accent-strong);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -178,8 +183,21 @@ footer[id],
   opacity: 0;
 }
 
+/* La dirección de entrada la fijan --reveal-x/--reveal-y (los pone Reveal.tsx):
+   0/20px = desde abajo (por defecto), ±30px/0 = lateral. */
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--reveal-x, 0), var(--reveal-y, 20px));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .reveal-visible {
-  animation: fade-up 0.7s ease-out both;
+  animation: reveal-in 0.7s ease-out both;
 }
 
 @media (scripting: none) {

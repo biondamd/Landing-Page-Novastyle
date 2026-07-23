@@ -13,7 +13,7 @@ export default function Collections({ collections }: CollectionsProps) {
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 flex items-end justify-between">
           <div>
-            <span className="mb-3 block font-mono text-xs uppercase tracking-[0.2em] text-accent">
+            <span className="mb-3 block font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
               Temporadas
             </span>
             <h2 className="font-serif text-4xl font-medium text-foreground md:text-5xl">

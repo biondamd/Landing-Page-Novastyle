@@ -50,7 +50,7 @@ export default function Catalog({ products, categories }: CatalogProps) {
     <section id="catalogo" className="bg-card px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mb-12">
-          <span className="mb-3 block font-mono text-xs uppercase tracking-[0.2em] text-accent">
+          <span className="mb-3 block font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
             Catálogo virtual
           </span>
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">

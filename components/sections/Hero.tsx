@@ -29,7 +29,7 @@ export default function Hero({ featured }: HeroProps) {
       <div className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-stretch px-6 lg:grid-cols-2">
         <div className="flex flex-col justify-center py-16 lg:pr-16">
           <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            <span className="mb-6 block font-mono text-xs uppercase tracking-[0.2em] text-accent">
+            <span className="mb-6 block font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
               Colección Verano 2026 · Hecho en Perú
             </span>
 
