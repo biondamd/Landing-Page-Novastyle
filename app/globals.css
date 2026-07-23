@@ -130,7 +130,8 @@
  */
 :target,
 section[id],
-footer[id] {
+footer[id],
+[id^="producto-"] {
   scroll-margin-top: 5rem;
 }
 

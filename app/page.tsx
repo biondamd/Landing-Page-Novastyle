@@ -4,14 +4,20 @@ import Catalog from "@/components/sections/Catalog";
 import Collections from "@/components/sections/Collections";
 import Footer from "@/components/sections/Footer";
 import Hero from "@/components/sections/Hero";
-import { getCollections, getFeaturedProduct, getProducts } from "@/lib/data";
+import {
+  getCategories,
+  getCollections,
+  getFeaturedProduct,
+  getProducts,
+} from "@/lib/data";
 
 export default async function Home() {
   // Los datos se leen en el servidor y bajan a los componentes como props.
-  const [products, featured, collections] = await Promise.all([
+  const [products, featured, collections, categories] = await Promise.all([
     getProducts(),
     getFeaturedProduct(),
     getCollections(),
+    getCategories(),
   ]);
 
   return (
@@ -22,7 +28,7 @@ export default async function Home() {
       <main>
         <Hero featured={featured} />
         <Collections collections={collections} />
-        <Catalog />
+        <Catalog products={products} categories={categories} />
         <About />
       </main>
       <Footer />
