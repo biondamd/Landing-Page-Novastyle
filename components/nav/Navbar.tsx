@@ -1,28 +1,142 @@
-const links = [
-  { href: "#hero", label: "Inicio" },
-  { href: "#collections", label: "Colecciones" },
-  { href: "#catalog", label: "Catálogo" },
-  { href: "#about", label: "About" },
+"use client";
+
+import { Menu, Search, ShoppingBag, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+// Cada href apunta a un id que existe en la página y va sin tildes: los ids
+// acentuados se codifican en la URL y rompen el salto por ancla.
+// "Novedades" lleva al catálogo porque no hay una sección propia de novedades.
+const LINKS = [
+  { href: "#catalogo", label: "Novedades" },
+  { href: "#colecciones", label: "Colecciones" },
+  { href: "#catalogo", label: "Catálogo" },
+  { href: "#sobre-nosotras", label: "Sobre nosotras" },
+  { href: "#contacto", label: "Contacto" },
 ];
 
-// Navegación básica con anclas para saltar entre secciones.
+/** A partir de este scroll la barra deja de ser transparente. */
+const SCROLL_THRESHOLD = 40;
+
 export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
+    onScroll(); // La página puede cargar ya desplazada (recarga o enlace con ancla).
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Al cerrar con Esc el foco vuelve al botón, o se perdería en el body.
+  const closeMenu = useCallback((returnFocus = false) => {
+    setMenuOpen(false);
+    if (returnFocus) menuButtonRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMenu(true);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen, closeMenu]);
+
+  // Con el menú abierto la barra necesita fondo sólido aunque no haya scroll:
+  // si no, el panel desplegado se lee encima del contenido de la página.
+  const solid = scrolled || menuOpen;
+
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-[rgba(11,13,16,0.82)] backdrop-blur">
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <a href="#hero" className="text-sm font-semibold uppercase tracking-[0.35em]">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        solid
+          ? "border-b border-border bg-background/95 shadow-sm backdrop-blur-md"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <a
+          href="#inicio"
+          className="font-serif text-xl uppercase tracking-widest text-foreground"
+        >
           Novastyle
         </a>
-        <ul className="flex flex-wrap items-center justify-end gap-3 text-sm text-muted">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a className="transition-colors hover:text-foreground" href={link.href}>
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+
+        <nav aria-label="Principal" className="hidden md:block">
+          <ul className="flex items-center gap-8">
+            {LINKS.map((link) => (
+              <li key={link.label}>
+                <a
+                  href={link.href}
+                  className="text-sm tracking-wide text-foreground/70 transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="flex items-center gap-2">
+          {/* TODO(HU-05): abrir el buscador de productos. */}
+          <button
+            type="button"
+            aria-label="Buscar prendas"
+            className="flex h-11 w-11 items-center justify-center text-foreground/70 transition-colors hover:text-foreground"
+          >
+            <Search size={18} aria-hidden="true" />
+          </button>
+
+          {/* TODO(carrito): sin funcionalidad hasta que exista el flujo de compra. */}
+          <button
+            type="button"
+            aria-label="Ver carrito"
+            className="flex h-11 w-11 items-center justify-center text-foreground/70 transition-colors hover:text-foreground"
+          >
+            <ShoppingBag size={18} aria-hidden="true" />
+          </button>
+
+          <button
+            ref={menuButtonRef}
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={menuOpen}
+            aria-controls="menu-movil"
+            className="flex h-11 w-11 items-center justify-center text-foreground transition-colors md:hidden"
+          >
+            {menuOpen ? (
+              <X size={20} aria-hidden="true" />
+            ) : (
+              <Menu size={20} aria-hidden="true" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {menuOpen && (
+        <nav
+          id="menu-movil"
+          aria-label="Principal (móvil)"
+          className="border-t border-border bg-background md:hidden"
+        >
+          <ul className="flex flex-col px-6 py-2">
+            {LINKS.map((link) => (
+              <li key={link.label}>
+                <a
+                  href={link.href}
+                  onClick={() => closeMenu()}
+                  className="block py-3 text-base text-foreground/70 transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }

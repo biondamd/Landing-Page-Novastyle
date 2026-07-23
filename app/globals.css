@@ -124,6 +124,16 @@
   }
 }
 
+/*
+ * La barra de navegación es fija, así que al saltar a un ancla el título de la
+ * sección quedaría oculto detrás. Este margen reserva su altura.
+ */
+:target,
+section[id],
+footer[id] {
+  scroll-margin-top: 5rem;
+}
+
 /* Marquee de la franja inferior del Hero (HU-06). */
 @keyframes marquee {
   from {
