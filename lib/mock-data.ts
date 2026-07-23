@@ -130,10 +130,13 @@ export const COLLECTIONS: Collection[] = [
 ];
 
 /**
- * Imágenes de secciones que no provienen del catálogo.
- * El Hero (HU-06) reutiliza la foto del Vestido Carmesí, como en el prototipo.
+ * Prenda que el Hero muestra como "Nuevo ingreso". Su foto es también la imagen
+ * principal de la sección, así que la card y el catálogo no pueden desincronizarse.
+ * TODO(strapi): sustituir por un campo "destacado" en el modelo de producto.
  */
+export const FEATURED_PRODUCT_ID = 3;
+
+/** Imágenes de secciones que no provienen del catálogo. */
 export const SECTION_IMAGES = {
-  hero: "/images/productos/vestido-carmesi.jpg",
   about: "/images/secciones/taller.jpg",
 } as const;

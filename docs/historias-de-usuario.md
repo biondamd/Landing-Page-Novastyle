@@ -160,7 +160,7 @@ Hay que resolverlas antes o durante la implementación — no son bugs de códig
 | # | Problema | Dónde | Propuesta |
 |---|---|---|---|
 | 1 | `id="catálogo"` y `href="#catálogo"` con tilde | `Catalog.tsx`, `Hero.tsx`, `Navbar.tsx` | Usar `id="catalogo"` sin tilde. Los IDs con acentos dan problemas al codificarse en la URL |
-| 2 | Enlace "Novedades" apunta a `#novedades`, que no existe | `Navbar.tsx` | Apuntar a `#catalogo` o crear la sección |
+| 2 | Enlace "Novedades" apunta a `#novedades`, que no existe | `Navbar.tsx` | **Resuelto:** se retira del menú. Apuntarlo a `#catalogo` dejaba dos entradas con el mismo destino, y no hay contenido para una sección propia. Vuelve cuando HU-08 permita filtrar por la etiqueta "Nuevo" |
 | 3 | Hero anuncia "Vestido Carmesí — S/ 89.90"; el catálogo lo lista a S/ 229.00 | `Hero.tsx` vs `Catalog.tsx` | Unificar precio |
 | 4 | Español rioplatense (voseo y "talles") en varios textos | `Footer.tsx`, `Newsletter.tsx`, `About.tsx` | Ver **4.1 Localización a Perú** — es obligatorio, no opcional |
 | 5 | Carrito muestra badge fijo "2" sin funcionalidad | `Navbar.tsx` | Decidir: ocultar el badge o implementar carrito (fuera de alcance actual) |
@@ -280,8 +280,8 @@ La metadata de [app/layout.tsx](../app/layout.tsx) ya cumple ("Lo último en mod
 - Fija arriba (`fixed top-0 z-50`).
 - Transparente al inicio; al superar 40px de scroll pasa a `#F7F4EF/95` con `backdrop-blur`, borde inferior y sombra, con transición de 300ms.
 - Logo "NOVASTYLE" en Playfair, mayúsculas, `tracking-widest`.
-- Enlaces (desktop ≥768px): Novedades, Colecciones, Catálogo, Sobre nosotras, Contacto.
-- **Todos los `href` apuntan a un `id` que existe en la página, sin tildes** (resuelve inconsistencias #1 y #2).
+- Enlaces (desktop ≥768px): Colecciones, Catálogo, Sobre nosotras, Contacto.
+- **Todos los `href` apuntan a un `id` que existe en la página, sin tildes, y ninguno se repite** (resuelve inconsistencias #1 y #2).
 - Íconos de búsqueda y carrito a la derecha.
 - <768px: los enlaces se colapsan en hamburguesa; el panel se despliega debajo y se cierra al elegir una opción.
 - El menú móvil se cierra con `Esc` y devuelve el foco al botón hamburguesa.

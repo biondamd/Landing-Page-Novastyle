@@ -134,13 +134,51 @@ footer[id] {
   scroll-margin-top: 5rem;
 }
 
-/* Marquee de la franja inferior del Hero (HU-06). */
+/*
+ * Marquee de la franja inferior del Hero. El contenido se renderiza dos veces,
+ * así que desplazar el 50% deja la cinta exactamente donde empezó.
+ */
 @keyframes marquee {
   from {
     transform: translateX(0);
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+/* Entrada escalonada de los bloques del Hero. El retardo lo pone cada elemento. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease-out both;
+}
+
+/*
+ * Quien pide menos movimiento ve el contenido en su posición final, sin
+ * desplazamientos ni cinta en bucle.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-marquee,
+  .animate-fade-up {
+    animation: none;
   }
 }
 

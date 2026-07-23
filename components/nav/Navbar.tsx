@@ -8,9 +8,11 @@ import type { Product } from "@/lib/types";
 
 // Cada href apunta a un id que existe en la página y va sin tildes: los ids
 // acentuados se codifican en la URL y rompen el salto por ancla.
-// "Novedades" lleva al catálogo porque no hay una sección propia de novedades.
+//
+// El prototipo incluía "Novedades", pero no hay sección de novedades: apuntaba
+// al mismo destino que "Catálogo". Se retira hasta que el catálogo permita
+// filtrar por la etiqueta "Nuevo" (HU-08) y el enlace tenga un destino propio.
 const LINKS = [
-  { href: "#catalogo", label: "Novedades" },
   { href: "#colecciones", label: "Colecciones" },
   { href: "#catalogo", label: "Catálogo" },
   { href: "#sobre-nosotras", label: "Sobre nosotras" },
