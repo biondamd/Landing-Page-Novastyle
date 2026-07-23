@@ -4,6 +4,7 @@ import Catalog from "@/components/sections/Catalog";
 import Collections from "@/components/sections/Collections";
 import Footer from "@/components/sections/Footer";
 import Hero from "@/components/sections/Hero";
+import Newsletter from "@/components/sections/Newsletter";
 import {
   getCategories,
   getCollections,
@@ -30,6 +31,7 @@ export default async function Home() {
         <Collections collections={collections} />
         <Catalog products={products} categories={categories} />
         <About />
+        <Newsletter />
       </main>
       <Footer />
     </>
