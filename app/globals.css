@@ -168,6 +168,26 @@ footer[id] {
 }
 
 /*
+ * Reveal: entra al hacerse visible en pantalla (ver components/ui/Reveal.tsx).
+ * Parte oculto y se anima cuando el observador le añade .reveal-visible. Los
+ * dos @media de más abajo lo dejan visible si no hay JS o se pide menos
+ * movimiento, para que el contenido nunca quede atrapado en opacity:0.
+ */
+.reveal {
+  opacity: 0;
+}
+
+.reveal-visible {
+  animation: fade-up 0.7s ease-out both;
+}
+
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+  }
+}
+
+/*
  * Quien pide menos movimiento ve el contenido en su posición final, sin
  * desplazamientos ni cinta en bucle.
  */
@@ -177,8 +197,14 @@ footer[id] {
   }
 
   .animate-marquee,
-  .animate-fade-up {
+  .animate-fade-up,
+  .reveal-visible {
     animation: none;
+  }
+
+  /* El contenido de Reveal debe verse aunque no se anime. */
+  .reveal {
+    opacity: 1;
   }
 }
 
