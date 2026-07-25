@@ -19,27 +19,16 @@ const LINKS = [
   { href: "#contacto", label: "Contacto" },
 ];
 
-/** A partir de este scroll la barra deja de ser transparente. */
-const SCROLL_THRESHOLD = 40;
-
 type NavbarProps = {
   /** Catálogo que alimenta el buscador. Lo aporta el servidor desde lib/data. */
   products: Product[];
 };
 
 export default function Navbar({ products }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
-    onScroll(); // La página puede cargar ya desplazada (recarga o enlace con ancla).
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Al cerrar con Esc el foco vuelve al botón, o se perdería en el body.
   const closeMenu = useCallback((returnFocus = false) => {
@@ -69,19 +58,11 @@ export default function Navbar({ products }: NavbarProps) {
     searchButtonRef.current?.focus();
   }, []);
 
-  // Con el menú abierto la barra necesita fondo sólido aunque no haya scroll:
-  // si no, el panel desplegado se lee encima del contenido de la página.
-  const solid = scrolled || menuOpen;
-
   return (
     <>
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-          solid
-            ? "border-b border-border bg-background/95 shadow-sm backdrop-blur-md"
-            : "bg-transparent"
-        }`}
-      >
+      {/* Fondo sólido siempre: con el titular gigante del Hero y la imagen a
+          sangre, una barra transparente deja los enlaces ilegibles. */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <a
             href="#inicio"

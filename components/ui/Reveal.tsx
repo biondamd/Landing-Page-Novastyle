@@ -39,17 +39,60 @@ export default function Reveal({
     const element = ref.current;
     if (!element) return;
 
+    const reveal = () => setVisible(true);
+
+    // Sin IntersectionObserver (o si algo falla al crearlo) el contenido se
+    // muestra igualmente: nunca puede quedarse atrapado en opacity:0.
+    if (typeof IntersectionObserver === "undefined") {
+      const raf = requestAnimationFrame(reveal);
+      return () => cancelAnimationFrame(raf);
+    }
+
+    // Revela el elemento si ya está dentro del viewport. Es la red de seguridad
+    // para cuando el observador no llega a notificar —por ejemplo al saltar
+    // directo a un ancla— y el contenido quedaría invisible para siempre.
+    const revealIfInView = () => {
+      const rect = element.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        reveal();
+        return true;
+      }
+      return false;
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect(); // Una sola vez.
+          reveal();
+          cleanup();
         }
       },
       { threshold: 0.15 },
     );
     observer.observe(element);
-    return () => observer.disconnect();
+
+    // Respaldo por si el observador no notifica: un scroll listener pasivo hace
+    // la misma comprobación y se retira en cuanto el contenido se revela.
+    const onScroll = () => {
+      if (revealIfInView()) cleanup();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+
+    // Comprobación inicial diferida: deja asentar la posición tras un posible
+    // salto a ancla y revela lo que ya esté en pantalla, sin esperar al scroll.
+    const raf = requestAnimationFrame(() => {
+      if (revealIfInView()) cleanup();
+    });
+
+    function cleanup() {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    }
+
+    return cleanup;
   }, []);
 
   return (
