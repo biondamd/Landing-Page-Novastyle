@@ -7,13 +7,11 @@
 
 import type { Collection, Product } from "./types";
 
-// Tres productos aún no tienen foto propia y reutilizan provisionalmente la de
-// otra prenda. Cada uno lleva un TODO con el nombre exacto que debe tener su
-// archivo definitivo.
-//
-// Además, dos colecciones (Verano 2026 y Esenciales) comparten a propósito la
-// foto de una prenda del catálogo, según el diseño. Las imágenes propias de
-// colección viven en /images/colecciones/.
+// El set de fotos es limitado, así que —siguiendo el diseño de referencia—
+// algunas imágenes se comparten entre catálogo y colecciones. Los productos sin
+// foto propia llevan un TODO con el nombre que debería tener su archivo final.
+// Cada tarjeta del catálogo usa una imagen distinta para que la grilla se vea
+// completa.
 
 export const PRODUCTS: Product[] = [
   {
@@ -25,7 +23,7 @@ export const PRODUCTS: Product[] = [
     tag: "Nuevo",
     sold: false,
     // TODO(foto): /images/productos/vestido-lino-natural.jpg
-    // Provisional: reutiliza la Blusa Bordada, la de tonos más cercanos a "Arena".
+    // Provisional: la foto del traje claro (archivo blusa-bordada.jpg), tono "Arena".
     image: "/images/productos/blusa-bordada.jpg",
   },
   {
@@ -68,8 +66,8 @@ export const PRODUCTS: Product[] = [
     tag: null,
     sold: false,
     // TODO(foto): /images/productos/pantalon-wide-leg.jpg
-    // Provisional: reutiliza el Blazer Sastre, la única foto con pierna ancha.
-    image: "/images/productos/blazer-sastre.jpg",
+    // Provisional: la foto del perchero de "Esenciales" (tonos camel).
+    image: "/images/colecciones/esenciales.jpg",
   },
   {
     id: 6,
@@ -79,7 +77,8 @@ export const PRODUCTS: Product[] = [
     color: "Blanco",
     tag: "Edición limitada",
     sold: true,
-    image: "/images/productos/blusa-bordada.jpg",
+    // Agotada: usa la foto de la percha vacía de "Verano 2026".
+    image: "/images/colecciones/verano-2026.jpg",
   },
   {
     id: 7,
@@ -90,8 +89,8 @@ export const PRODUCTS: Product[] = [
     tag: "Nuevo",
     sold: false,
     // TODO(foto): /images/productos/vestido-midi-floral.jpg
-    // Provisional: reutiliza la Blusa Seda Cruda, de caída suelta y fluida.
-    image: "/images/productos/blusa-seda-cruda.jpg",
+    // Provisional: la foto del vestido de "Noche".
+    image: "/images/colecciones/noche.jpg",
   },
   {
     id: 8,

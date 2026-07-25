@@ -101,7 +101,11 @@ export default function Catalog({ products, categories }: CatalogProps) {
                     key={product.id}
                     id={`producto-${product.id}`}
                     layout
-                    initial={{ opacity: 0, y: 20 }}
+                    // initial={false}: el producto se renderiza ya visible en el
+                    // servidor (opacity:1). Así la grilla nunca queda vacía si el
+                    // JavaScript no llega a ejecutarse; la animación de entrada al
+                    // filtrar/cargar más sigue funcionando cuando sí hay JS.
+                    initial={false}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }}
