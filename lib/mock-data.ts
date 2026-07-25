@@ -9,8 +9,11 @@ import type { Collection, Product } from "./types";
 
 // Tres productos aún no tienen foto propia y reutilizan provisionalmente la de
 // otra prenda. Cada uno lleva un TODO con el nombre exacto que debe tener su
-// archivo definitivo. Solo se repiten fotos del catálogo, nunca de las
-// colecciones: eso mostraría la misma imagen dos veces en la misma pantalla.
+// archivo definitivo.
+//
+// Además, dos colecciones (Verano 2026 y Esenciales) comparten a propósito la
+// foto de una prenda del catálogo, según el diseño. Las imágenes propias de
+// colección viven en /images/colecciones/.
 
 export const PRODUCTS: Product[] = [
   {
@@ -105,27 +108,29 @@ export const PRODUCTS: Product[] = [
 export const COLLECTIONS: Collection[] = [
   {
     id: 1,
-    name: "Esenciales",
-    description: "Lo que nunca pasa de moda. Básicos con alma.",
-    tag: "Atemporal",
-    itemCount: 42,
-    image: "/images/colecciones/esenciales.jpg",
-  },
-  {
-    id: 2,
     name: "Verano 2026",
     description: "Livianos, frescos y llenos de color.",
     tag: "Nueva temporada",
     itemCount: 38,
-    image: "/images/colecciones/verano-2026.jpg",
+    // Comparte la foto de la Camisa Oversize del catálogo (camiseta azul).
+    image: "/images/productos/camisa-oversize.jpg",
   },
   {
-    id: 3,
+    id: 2,
     name: "Noche",
     description: "Para los momentos que merecen brillar.",
     tag: "Ocasiones especiales",
     itemCount: 27,
     image: "/images/colecciones/noche.jpg",
+  },
+  {
+    id: 3,
+    name: "Esenciales",
+    description: "Lo que nunca pasa de moda. Básicos con alma.",
+    tag: "Atemporal",
+    itemCount: 42,
+    // Comparte la foto del Blazer Sastre del catálogo (blazer gris).
+    image: "/images/productos/blazer-sastre.jpg",
   },
 ];
 

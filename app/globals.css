@@ -190,12 +190,15 @@ footer[id],
 
 /*
  * Reveal: entra al hacerse visible en pantalla (ver components/ui/Reveal.tsx).
- * Parte oculto y se anima cuando el observador le añade .reveal-visible. Los
- * dos @media de más abajo lo dejan visible si no hay JS o se pide menos
- * movimiento, para que el contenido nunca quede atrapado en opacity:0.
+ *
+ * El contenido es VISIBLE por defecto (opacity:1). La animación de entrada es
+ * solo una mejora: cuando el observador añade .reveal-visible, el contenido se
+ * oculta y reaparece con la animación reveal-in. Así, si el JavaScript no llega
+ * a ejecutarse (bundle en caché, hidratación incompleta, JS bloqueado…), las
+ * tarjetas nunca pueden quedarse atrapadas invisibles: se ven igual, sin animar.
  */
 .reveal {
-  opacity: 0;
+  opacity: 1;
 }
 
 /* La dirección de entrada la fijan --reveal-x/--reveal-y (los pone Reveal.tsx):
