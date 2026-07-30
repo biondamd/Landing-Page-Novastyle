@@ -5,7 +5,15 @@
 // Las imágenes viven en public/images/ y se sirven con next/image, que genera el
 // tamaño de cada breakpoint. El recorte 3:4 lo hace el CSS con object-cover.
 
-import type { Collection, Product } from "./types";
+import type {
+  AboutContent,
+  Collection,
+  FooterContent,
+  HeaderContent,
+  HeroContent,
+  NewsletterContent,
+  Product,
+} from "./types";
 
 // El set de fotos es limitado, así que —siguiendo el diseño de referencia—
 // algunas imágenes se comparten entre catálogo y colecciones. Los productos sin
@@ -144,3 +152,132 @@ export const FEATURED_PRODUCT_ID = 3;
 export const SECTION_IMAGES = {
   about: "/images/secciones/taller.jpg",
 } as const;
+
+export const HEADER_CONTENT: HeaderContent = {
+  logoText: "Novastyle",
+  links: [
+    { id: 1, label: "Colecciones", href: "#colecciones", order: 1, active: true },
+    { id: 2, label: "Catálogo", href: "#catalogo", order: 2, active: true },
+    { id: 3, label: "Sobre nosotras", href: "#sobre-nosotras", order: 3, active: true },
+    { id: 4, label: "Contacto", href: "#contacto", order: 4, active: true },
+  ],
+};
+
+export const HERO_CONTENT: HeroContent = {
+  badgeText: "Colección Verano 2026 · Hecho en Perú",
+  titlePrefix: "Moda que",
+  titleEmphasis: "cuenta",
+  titleSuffix: "una historia",
+  description:
+    "Prendas pensadas para mujeres reales. Diseños únicos, tejidos naturales y producción local — porque la moda debería sentirse tan bien como verse.",
+  featuredProductId: FEATURED_PRODUCT_ID,
+  ctas: [
+    { id: 1, label: "Ver catálogo", href: "#catalogo", variant: "primary", order: 1 },
+    { id: 2, label: "Ver colecciones", href: "#colecciones", variant: "secondary", order: 2 },
+  ],
+  stats: [
+    { id: 1, value: "200+", label: "Prendas únicas", order: 1 },
+    { id: 2, value: "100%", label: "Producción local", order: 2 },
+    { id: 3, value: "4 años", label: "Vistiendo sueños", order: 3 },
+  ],
+};
+
+export const ABOUT_CONTENT: AboutContent = {
+  badgeText: "Nuestra historia",
+  title: "Nació de un sueño, creció con amor",
+  body:
+    "Novastyle nació en 2022 desde el taller de casa de Valentina, en Lima, con una máquina de coser heredada y la certeza de que la moda peruana podía ser diferente: más honesta, más bonita, más cercana.\n\nHoy somos un equipo de 6 mujeres apasionadas que diseñan, cosen y empacan cada pedido con el mismo cuidado del primer día. Cada prenda lleva horas de trabajo, materiales elegidos con criterio y mucho cariño.",
+  image: SECTION_IMAGES.about,
+  floatingQuote: "Moda que se siente bien por dentro y por fuera.",
+  stats: [
+    { id: 1, value: "6", label: "Mujeres", order: 1 },
+    { id: 2, value: "2.400+", label: "Clientas felices", order: 2 },
+    { id: 3, value: "100%", label: "Hecho a mano", order: 3 },
+  ],
+  values: [
+    {
+      id: 1,
+      icon: "leaf",
+      title: "Materiales conscientes",
+      description:
+        "Usamos linos, algodones orgánicos y telas naturales que cuidan tanto tu piel como el planeta.",
+      order: 1,
+    },
+    {
+      id: 2,
+      icon: "scissors",
+      title: "Producción local",
+      description:
+        "Cada prenda se confecciona a mano por talleristas locales. Apoyamos el trabajo justo y la economía cercana.",
+      order: 2,
+    },
+    {
+      id: 3,
+      icon: "heart",
+      title: "Diseño inclusivo",
+      description:
+        "Tallas del XS al 3XL. Porque la moda bonita no debería tener límites de talla.",
+      order: 3,
+    },
+  ],
+};
+
+export const NEWSLETTER_CONTENT: NewsletterContent = {
+  badgeText: "Comunidad Novastyle",
+  title: "Sé la primera en saberlo",
+  description:
+    "Nuevos ingresos, preventas exclusivas, descuentos para suscriptoras y detrás de escena del taller. Nada de spam, solo lo lindo.",
+  buttonText: "Suscribirme",
+  privacyNote: "Sin spam · Cancelas cuando quieras · Solo lo bueno",
+};
+
+export const FOOTER_CONTENT: FooterContent = {
+  logoText: "Novastyle",
+  description: "Moda consciente, hecha a mano, diseñada para ti.",
+  socialLinks: [
+    { id: 1, platform: "instagram", href: null, active: true },
+    { id: 2, platform: "facebook", href: null, active: true },
+  ],
+  groups: [
+    {
+      id: 1,
+      title: "Tienda",
+      order: 1,
+      links: [
+        { id: 1, label: "Novedades", href: null, order: 1, active: true },
+        { id: 2, label: "Colecciones", href: "#colecciones", order: 2, active: true },
+        { id: 3, label: "Catálogo completo", href: "#catalogo", order: 3, active: true },
+        { id: 4, label: "Preventas", href: null, order: 4, active: true },
+        { id: 5, label: "Liquidación", href: null, order: 5, active: true },
+      ],
+    },
+    {
+      id: 2,
+      title: "Info",
+      order: 2,
+      links: [
+        { id: 6, label: "Sobre nosotras", href: "#sobre-nosotras", order: 1, active: true },
+        { id: 7, label: "Cómo comprar", href: null, order: 2, active: true },
+        { id: 8, label: "Tallas y medidas", href: null, order: 3, active: true },
+        { id: 9, label: "Envíos y devoluciones", href: null, order: 4, active: true },
+        { id: 10, label: "Preguntas frecuentes", href: null, order: 5, active: true },
+      ],
+    },
+    {
+      id: 3,
+      title: "Contacto",
+      order: 3,
+      links: [
+        { id: 11, label: "hola@novastyle.pe", href: "mailto:hola@novastyle.pe", order: 1, active: true },
+        { id: 12, label: "WhatsApp", href: null, order: 2, active: true },
+        { id: 13, label: "Instagram DM", href: null, order: 3, active: true },
+        { id: 14, label: "Lunes a viernes 9-18h", href: null, order: 4, active: true },
+      ],
+    },
+  ],
+  legalLinks: [
+    { id: 15, label: "Términos", href: null, order: 1, active: true },
+    { id: 16, label: "Privacidad", href: null, order: 2, active: true },
+    { id: 17, label: "Cookies", href: null, order: 3, active: true },
+  ],
+};

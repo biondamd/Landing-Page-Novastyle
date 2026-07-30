@@ -2,14 +2,7 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 import { formatPrice } from "@/lib/format";
-import type { Product } from "@/lib/types";
-
-const STATS = [
-  { value: "200+", label: "Prendas únicas" },
-  { value: "100%", label: "Producción local" },
-  // Novastyle nació en 2022 (ver About): en 2026 son cuatro años.
-  { value: "4 años", label: "Vistiendo sueños" },
-];
+import type { HeroContent, Product } from "@/lib/types";
 
 const MARQUEE_ITEMS = [
   "Moda consciente",
@@ -21,32 +14,35 @@ const MARQUEE_ITEMS = [
 type HeroProps = {
   /** Prenda del "Nuevo ingreso": aporta nombre, precio e imagen de la sección. */
   featured: Product;
+  content: HeroContent;
 };
 
-export default function Hero({ featured }: HeroProps) {
+export default function Hero({ featured, content }: HeroProps) {
+  const primaryCta = content.ctas.find((cta) => cta.variant === "primary") ?? content.ctas[0];
+  const secondaryCta = content.ctas.find((cta) => cta.variant === "secondary");
+
   return (
     <section id="inicio" className="flex min-h-screen flex-col pt-20">
       <div className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-stretch px-6 lg:grid-cols-2">
         <div className="flex flex-col justify-center py-16 lg:pr-16">
           <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
             <span className="mb-6 block font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
-              Colección Verano 2026 · Hecho en Perú
+              {content.badgeText}
             </span>
 
             <h1
               className="mb-8 font-serif font-medium leading-[1.05] text-foreground"
               style={{ fontSize: "clamp(3rem, 7vw, 6.5rem)" }}
             >
-              Moda que
+              {content.titlePrefix}
               <br />
-              <em>cuenta</em> una
+              <em>{content.titleEmphasis}</em>
               <br />
-              historia
+              {content.titleSuffix}
             </h1>
 
             <p className="mb-10 max-w-md text-lg font-light leading-relaxed text-muted-foreground">
-              Prendas pensadas para mujeres reales. Diseños únicos, tejidos naturales y
-              producción local — porque la moda debería sentirse tan bien como verse.
+              {content.description}
             </p>
           </div>
 
@@ -54,23 +50,27 @@ export default function Hero({ featured }: HeroProps) {
             className="flex flex-wrap gap-4 animate-fade-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <a
-              href="#catalogo"
-              className="group inline-flex items-center gap-3 bg-foreground px-8 py-4 text-sm tracking-wide text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-foreground"
-            >
-              Ver catálogo
-              <ArrowRight
-                size={16}
-                aria-hidden="true"
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </a>
-            <a
-              href="#colecciones"
-              className="inline-flex items-center gap-3 border border-foreground/20 px-8 py-4 text-sm tracking-wide text-foreground transition-colors hover:border-foreground"
-            >
-              Ver colecciones
-            </a>
+            {primaryCta && (
+              <a
+                href={primaryCta.href}
+                className="group inline-flex items-center gap-3 bg-foreground px-8 py-4 text-sm tracking-wide text-primary-foreground transition-all duration-300 hover:bg-accent hover:text-foreground"
+              >
+                {primaryCta.label}
+                <ArrowRight
+                  size={16}
+                  aria-hidden="true"
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </a>
+            )}
+            {secondaryCta && (
+              <a
+                href={secondaryCta.href}
+                className="inline-flex items-center gap-3 border border-foreground/20 px-8 py-4 text-sm tracking-wide text-foreground transition-colors hover:border-foreground"
+              >
+                {secondaryCta.label}
+              </a>
+            )}
           </div>
 
           <dl
@@ -79,7 +79,7 @@ export default function Hero({ featured }: HeroProps) {
           >
             {/* column-reverse: el dato va arriba, pero en el DOM manda el término
                 (dt) antes que su valor (dd), que es como se lee en voz alta. */}
-            {STATS.map((stat) => (
+            {content.stats.map((stat) => (
               <div key={stat.label} className="flex flex-col-reverse">
                 <dt className="mt-1 text-xs text-muted-foreground">{stat.label}</dt>
                 <dd className="font-serif text-2xl font-medium text-foreground">

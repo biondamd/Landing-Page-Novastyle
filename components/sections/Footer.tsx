@@ -1,3 +1,5 @@
+import type { FooterContent, FooterLink as FooterLinkType } from "@/lib/types";
+
 // lucide 1.25 ya no incluye iconos de marca (Instagram/Facebook), así que se
 // dibujan a mano con el mismo estilo de trazo (24px, stroke currentColor).
 function Instagram({ size = 18 }: { size?: number }) {
@@ -38,51 +40,7 @@ function Facebook({ size = 18 }: { size?: number }) {
   );
 }
 
-// Enlace de pie: si `href` existe, es un destino real; si es null, la página
-// aún no existe (fase 2) y se muestra como texto no interactivo con aviso, en
-// vez de un href="#" que no lleva a ninguna parte.
-type FooterLink = { label: string; href: string | null };
-
-const LINK_GROUPS: { title: string; links: FooterLink[] }[] = [
-  {
-    title: "Tienda",
-    links: [
-      { label: "Novedades", href: null },
-      { label: "Colecciones", href: "#colecciones" },
-      { label: "Catálogo completo", href: "#catalogo" },
-      { label: "Preventas", href: null },
-      { label: "Liquidación", href: null },
-    ],
-  },
-  {
-    title: "Info",
-    links: [
-      { label: "Sobre nosotras", href: "#sobre-nosotras" },
-      { label: "Cómo comprar", href: null },
-      // "Tallas", no "talles": la tienda es peruana (docs 4.1).
-      { label: "Tallas y medidas", href: null },
-      { label: "Envíos y devoluciones", href: null },
-      { label: "Preguntas frecuentes", href: null },
-    ],
-  },
-  {
-    title: "Contacto",
-    links: [
-      { label: "hola@novastyle.pe", href: "mailto:hola@novastyle.pe" },
-      { label: "WhatsApp", href: null },
-      { label: "Instagram DM", href: null },
-      { label: "Lunes a viernes 9-18h", href: null },
-    ],
-  },
-];
-
-const LEGAL: FooterLink[] = [
-  { label: "Términos", href: null },
-  { label: "Privacidad", href: null },
-  { label: "Cookies", href: null },
-];
-
-function FooterItem({ link, className = "" }: { link: FooterLink; className?: string }) {
+function FooterItem({ link, className = "" }: { link: FooterLinkType; className?: string }) {
   if (link.href) {
     return (
       <a href={link.href} className={`transition-colors hover:text-accent ${className}`}>
@@ -99,8 +57,13 @@ function FooterItem({ link, className = "" }: { link: FooterLink; className?: st
   );
 }
 
-export default function Footer() {
+type FooterProps = {
+  content: FooterContent;
+};
+
+export default function Footer({ content }: FooterProps) {
   const year = new Date().getFullYear();
+  const socialLinks = new Map(content.socialLinks.map((link) => [link.platform, link]));
 
   return (
     <footer id="contacto" className="bg-foreground px-6 py-16 text-white/60">
@@ -108,33 +71,26 @@ export default function Footer() {
         <div className="mb-14 grid grid-cols-2 gap-10 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
             <p className="mb-4 font-serif text-2xl uppercase tracking-widest text-white">
-              Novastyle
+              {content.logoText}
             </p>
             <p className="text-sm font-light leading-relaxed">
-              Moda consciente, hecha a mano, diseñada para ti.
+              {content.description}
             </p>
             <div className="mt-6 flex gap-4">
-              {/* TODO(fase-2): enlazar a los perfiles reales cuando existan. */}
-              <span
-                className="cursor-default transition-colors hover:text-accent"
-                title="Próximamente"
-                role="img"
-                aria-label="Instagram (próximamente)"
-              >
-                <Instagram size={18} />
-              </span>
-              <span
-                className="cursor-default transition-colors hover:text-accent"
-                title="Próximamente"
-                role="img"
-                aria-label="Facebook (próximamente)"
-              >
-                <Facebook size={18} />
-              </span>
+              {socialLinks.get("instagram")?.href ? (
+                <a href={socialLinks.get("instagram")?.href ?? "#"} aria-label="Instagram" className="transition-colors hover:text-accent">
+                  <Instagram size={18} />
+                </a>
+              ) : null}
+              {socialLinks.get("facebook")?.href ? (
+                <a href={socialLinks.get("facebook")?.href ?? "#"} aria-label="Facebook" className="transition-colors hover:text-accent">
+                  <Facebook size={18} />
+                </a>
+              ) : null}
             </div>
           </div>
 
-          {LINK_GROUPS.map((group) => (
+          {content.groups.map((group) => (
             <div key={group.title}>
               <p className="mb-5 font-mono text-xs uppercase tracking-widest text-white">
                 {group.title}
@@ -155,7 +111,7 @@ export default function Footer() {
             © {year} Novastyle · Todos los derechos reservados
           </p>
           <div className="flex gap-6">
-            {LEGAL.map((link) => (
+            {content.legalLinks.map((link) => (
               <FooterItem
                 key={link.label}
                 link={link}

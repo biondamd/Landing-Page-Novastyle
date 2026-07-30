@@ -1,9 +1,20 @@
 import type { NextConfig } from "next";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
+
 const nextConfig: NextConfig = {
-  // Todas las imágenes son locales (public/images), así que next/image no
-  // necesita permisos de dominio. Al migrar a Strapi habrá que declarar su
-  // dominio de medios en images.remotePatterns.
+  images: {
+    remotePatterns: supabaseHost
+      ? [
+          {
+            protocol: "https",
+            hostname: supabaseHost,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ]
+      : [],
+  },
 };
 
 export default nextConfig;

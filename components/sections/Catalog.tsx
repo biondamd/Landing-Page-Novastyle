@@ -3,10 +3,10 @@
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { Heart, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { formatPrice } from "@/lib/format";
-import type { Category, Product } from "@/lib/types";
+import type { Product } from "@/lib/types";
 
 /** Cuántas prendas se añaden con cada "Cargar más". */
 const PAGE_SIZE = 8;
@@ -14,26 +14,32 @@ const PAGE_SIZE = 8;
 /** Opción de filtro que muestra todo; no es una categoría real. */
 const ALL = "Todos";
 
-type Filter = typeof ALL | Category;
+type Filter = string;
 
 type CatalogProps = {
   products: Product[];
-  categories: readonly Category[];
+  categories: readonly string[];
 };
 
 export default function Catalog({ products, categories }: CatalogProps) {
   const [filter, setFilter] = useState<Filter>(ALL);
+  const [collectionFilter, setCollectionFilter] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   // Set de ids marcados. Persiste mientras la página siga abierta.
   const [wishlist, setWishlist] = useState<ReadonlySet<number>>(new Set());
 
   const filters: Filter[] = [ALL, ...categories];
-  const filtered = filter === ALL ? products : products.filter((p) => p.category === filter);
+  const filtered = products.filter((product) => {
+    const categoryMatches = filter === ALL || product.category === filter;
+    const collectionMatches = !collectionFilter || product.collectionSlug === collectionFilter;
+    return categoryMatches && collectionMatches;
+  });
   const visible = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
 
   const changeFilter = (next: Filter) => {
     setFilter(next);
+    setCollectionFilter(null);
     setVisibleCount(PAGE_SIZE); // Cada filtro empieza desde su primera página.
   };
 
@@ -45,6 +51,20 @@ export default function Catalog({ products, categories }: CatalogProps) {
       return next;
     });
   };
+
+  useEffect(() => {
+    const applyCollection = () => {
+      const params = new URLSearchParams(window.location.hash.split("?")[1]);
+      const collection = params.get("coleccion");
+      if (!collection) return;
+      setCollectionFilter(collection);
+      setVisibleCount(PAGE_SIZE);
+    };
+
+    applyCollection();
+    window.addEventListener("hashchange", applyCollection);
+    return () => window.removeEventListener("hashchange", applyCollection);
+  }, []);
 
   return (
     <section id="catalogo" className="bg-card px-6 py-24">
@@ -60,6 +80,7 @@ export default function Catalog({ products, categories }: CatalogProps) {
             <p className="text-sm text-muted-foreground" aria-live="polite">
               {filtered.length}{" "}
               {filtered.length === 1 ? "artículo encontrado" : "artículos encontrados"}
+              {collectionFilter ? " en esta colección" : ""}
             </p>
           </div>
         </div>
@@ -79,10 +100,22 @@ export default function Catalog({ products, categories }: CatalogProps) {
                     : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
                 }`}
               >
-                {option}
-              </button>
-            );
-          })}
+                  {option}
+                </button>
+              );
+            })}
+          {collectionFilter && (
+            <button
+              type="button"
+              onClick={() => {
+                setCollectionFilter(null);
+                window.history.replaceState(null, "", "#catalogo");
+              }}
+              className="inline-flex min-h-11 items-center border border-foreground px-5 text-sm text-foreground transition-all duration-200 hover:bg-foreground hover:text-primary-foreground"
+            >
+              Limpiar colección
+            </button>
+          )}
         </div>
 
         {filtered.length === 0 ? (
@@ -185,6 +218,11 @@ export default function Catalog({ products, categories }: CatalogProps) {
                       >
                         {formatPrice(product.price)}
                       </p>
+                      {product.originalPrice && (
+                        <p className="shrink-0 font-serif text-sm text-muted-foreground line-through">
+                          {formatPrice(product.originalPrice)}
+                        </p>
+                      )}
                     </div>
                   </motion.li>
                 ))}

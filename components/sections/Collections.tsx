@@ -31,10 +31,8 @@ export default function Collections({ collections }: CollectionsProps) {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {collections.map((collection, index) => (
             <Reveal key={collection.id} delay={index * 0.12}>
-              {/* TODO(HU-08): al hacer clic, el catálogo debe filtrarse por esta
-                  colección. Hasta que exista el filtro, solo lleva al catálogo. */}
               <a
-                href="#catalogo"
+                href={`#catalogo?coleccion=${collection.slug ?? collection.id}`}
                 aria-label={`Ver la colección ${collection.name} en el catálogo`}
                 className="group block"
               >

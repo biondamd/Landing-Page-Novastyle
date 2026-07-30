@@ -1,0 +1,104 @@
+import Image from "next/image";
+
+import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect, textareaClass } from "@/components/admin/AdminUi";
+import { createClient } from "@/lib/supabase/server";
+
+import { saveCollection } from "../actions";
+
+type PageProps = {
+  searchParams?: Promise<{ edit?: string; new?: string }>;
+};
+
+export default async function CollectionsAdminPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const supabase = await createClient();
+  const { data: collections } = await supabase
+    .from("collections")
+    .select("*")
+    .order("display_order", { ascending: true });
+  const selected = params?.edit
+    ? collections?.find((collection) => String(collection.id) === params.edit)
+    : undefined;
+  const editing = selected ?? null;
+
+  return (
+    <>
+      <PageHeader
+        title="Colecciones"
+        count={`${collections?.length ?? 0} entradas encontradas`}
+        actionHref="/admin/colecciones?new=1"
+      />
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_520px]">
+        <Panel>
+          <table className="w-full min-w-[760px] text-left">
+            <thead className="text-xs uppercase text-[#aaaacd]">
+              <tr className="border-b border-[#33334f]">
+                <th className="px-4 py-3">ID</th>
+                <th className="px-4 py-3">Nombre</th>
+                <th className="px-4 py-3">Slug</th>
+                <th className="px-4 py-3">Etiqueta</th>
+                <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {(collections ?? []).map((collection) => (
+                <tr key={collection.id} className="border-b border-[#33334f] last:border-0">
+                  <td className="px-4 py-4 text-[#b9b9d4]">{collection.id}</td>
+                  <td className="px-4 py-4">{collection.name}</td>
+                  <td className="px-4 py-4 text-[#b9b9d4]">{collection.slug}</td>
+                  <td className="px-4 py-4">{collection.badge_label}</td>
+                  <td className="px-4 py-4"><StatusBadge status={collection.status} /></td>
+                  <td className="px-4 py-4 text-right">
+                    <a href={`/admin/colecciones?edit=${collection.id}`} className="text-[#7777ff]">
+                      Editar
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Panel>
+
+        {(params?.new || editing) && (
+          <Panel>
+            <h2 className="mb-6 text-2xl font-bold">
+              {editing ? "Editar colección" : "Crear colección"}
+            </h2>
+            <form action={saveCollection} className="flex flex-col gap-5">
+              <input type="hidden" name="id" value={editing?.id ?? ""} />
+              <input type="hidden" name="image_url" value={editing?.image_url ?? ""} />
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <Field label="Nombre">
+                  <input name="name" defaultValue={editing?.name ?? ""} required className={inputClass} />
+                </Field>
+                <Field label="Etiqueta">
+                  <input name="badge_label" defaultValue={editing?.badge_label ?? ""} required className={inputClass} />
+                </Field>
+              </div>
+              <Field label="Descripción">
+                <textarea name="description" defaultValue={editing?.description ?? ""} required className={textareaClass} />
+              </Field>
+              <Field label="Imagen">
+                <input name="image" type="file" accept="image/*" className={inputClass} />
+              </Field>
+              {editing?.image_url ? (
+                <Image src={editing.image_url} alt="" width={160} height={210} className="h-40 w-32 object-cover" />
+              ) : null}
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <Field label="Orden">
+                  <input name="display_order" type="number" defaultValue={editing?.display_order ?? (collections?.length ?? 0) + 1} className={inputClass} />
+                </Field>
+                <Field label="Estado">
+                  <StatusSelect defaultValue={editing?.status ?? "published"} />
+                </Field>
+              </div>
+              <button className="bg-[#4b4bff] px-5 py-3 text-sm font-bold">Guardar</button>
+            </form>
+          </Panel>
+        )}
+      </div>
+    </>
+  );
+}

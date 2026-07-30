@@ -3,25 +3,39 @@
 import { ArrowRight, Check } from "lucide-react";
 import { useId, useRef, useState } from "react";
 
+import type { NewsletterContent } from "@/lib/types";
+
 // Validación de formato suficiente para el cliente. La real la hará el backend.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function Newsletter() {
+type NewsletterProps = {
+  content: NewsletterContent;
+};
+
+export default function Newsletter({ content }: NewsletterProps) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const errorId = useId();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!EMAIL_RE.test(email.trim())) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!EMAIL_RE.test(normalizedEmail)) {
       setError("Ingresa un correo válido, por ejemplo hola@correo.com.");
       inputRef.current?.focus();
       return;
     }
     setError("");
-    // TODO(strapi): POST /api/subscribers con el email. Por ahora se simula.
+
+    await fetch("/api/newsletter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normalizedEmail }),
+    });
+
     setSubmitted(true);
   };
 
@@ -29,14 +43,13 @@ export default function Newsletter() {
     <section className="bg-accent px-6 py-20 text-accent-foreground">
       <div className="mx-auto max-w-3xl text-center">
         <span className="mb-4 block font-mono text-xs uppercase tracking-[0.2em] text-foreground/80">
-          Comunidad Novastyle
+          {content.badgeText}
         </span>
         <h2 className="mb-5 font-serif text-4xl font-medium text-foreground md:text-5xl">
-          Sé la primera en saberlo
+          {content.title}
         </h2>
         <p className="mx-auto mb-10 max-w-lg font-light text-foreground/80">
-          Nuevos ingresos, preventas exclusivas, descuentos para suscriptoras y detrás de
-          escena del taller. Nada de spam, solo lo lindo.
+          {content.description}
         </p>
 
         {submitted ? (
@@ -69,7 +82,7 @@ export default function Newsletter() {
                 type="submit"
                 className="group inline-flex items-center justify-center gap-2 bg-foreground px-7 py-3.5 text-sm tracking-wide text-primary-foreground transition-colors hover:bg-foreground/80"
               >
-                Suscribirme
+                {content.buttonText}
                 <ArrowRight
                   size={15}
                   aria-hidden="true"
@@ -86,7 +99,7 @@ export default function Newsletter() {
         )}
 
         <p className="mt-6 font-mono text-[10px] uppercase tracking-wider text-foreground/80">
-          Sin spam · Cancelas cuando quieras · Solo lo bueno
+          {content.privacyNote}
         </p>
       </div>
     </section>
