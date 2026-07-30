@@ -4,27 +4,14 @@ import { Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import SearchOverlay from "@/components/nav/SearchOverlay";
-import type { Product } from "@/lib/types";
-
-// Cada href apunta a un id que existe en la página y va sin tildes: los ids
-// acentuados se codifican en la URL y rompen el salto por ancla.
-//
-// El prototipo incluía "Novedades", pero no hay sección de novedades: apuntaba
-// al mismo destino que "Catálogo". Se retira hasta que el catálogo permita
-// filtrar por la etiqueta "Nuevo" (HU-08) y el enlace tenga un destino propio.
-const LINKS = [
-  { href: "#colecciones", label: "Colecciones" },
-  { href: "#catalogo", label: "Catálogo" },
-  { href: "#sobre-nosotras", label: "Sobre nosotras" },
-  { href: "#contacto", label: "Contacto" },
-];
+import type { HeaderContent, Product } from "@/lib/types";
 
 type NavbarProps = {
-  /** Catálogo que alimenta el buscador. Lo aporta el servidor desde lib/data. */
+  content: HeaderContent;
   products: Product[];
 };
 
-export default function Navbar({ products }: NavbarProps) {
+export default function Navbar({ content, products }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -68,12 +55,12 @@ export default function Navbar({ products }: NavbarProps) {
             href="#inicio"
             className="font-serif text-xl uppercase tracking-widest text-foreground"
           >
-            Novastyle
+            {content.logoText}
           </a>
 
           <nav aria-label="Principal" className="hidden md:block">
             <ul className="flex items-center gap-8">
-              {LINKS.map((link) => (
+              {content.navLinks.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
@@ -132,7 +119,7 @@ export default function Navbar({ products }: NavbarProps) {
             className="border-t border-border bg-background md:hidden"
           >
             <ul className="flex flex-col px-6 py-2">
-              {LINKS.map((link) => (
+              {content.navLinks.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
