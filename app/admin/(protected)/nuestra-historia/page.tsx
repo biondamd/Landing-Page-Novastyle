@@ -8,6 +8,7 @@ import {
   StatusSelect,
   textareaClass,
 } from "@/components/admin/AdminUi";
+import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveAbout } from "../actions";
@@ -96,7 +97,7 @@ export default async function AboutAdminPage() {
           <Field label="Estado">
             <StatusSelect defaultValue={about?.status ?? "published"} />
           </Field>
-          <button className="mt-5 w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold">Guardar</button>
+          <SubmitButton className="mt-5 w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
         </Panel>
       </form>
     </>

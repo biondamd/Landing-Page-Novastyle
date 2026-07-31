@@ -1,4 +1,5 @@
 import { Field, inputClass, PageHeader, Panel, StatusSelect } from "@/components/admin/AdminUi";
+import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveHeader } from "../actions";
@@ -44,7 +45,7 @@ export default async function HeaderAdminPage() {
 
         <Panel>
           <p className="mb-4 text-xs font-bold uppercase text-[#aaaacd]">Entrada</p>
-          <button className="w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold">Guardar</button>
+          <SubmitButton className="w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
         </Panel>
       </form>
     </>

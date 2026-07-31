@@ -6,6 +6,7 @@ import {
   StatusSelect,
   textareaClass,
 } from "@/components/admin/AdminUi";
+import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveHero } from "../actions";
@@ -99,7 +100,7 @@ export default async function HeroAdminPage() {
           <Field label="Estado">
             <StatusSelect defaultValue={hero?.status ?? "published"} />
           </Field>
-          <button className="mt-5 w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold">Guardar</button>
+          <SubmitButton className="mt-5 w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
         </Panel>
       </form>
     </>

@@ -9,6 +9,7 @@ import {
   StatusSelect,
   textareaClass,
 } from "@/components/admin/AdminUi";
+import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveCategory, saveCollection, saveProduct, saveTag } from "../actions";
@@ -162,7 +163,7 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
                     <StatusSelect defaultValue={editing?.status ?? "published"} />
                   </Field>
                 </div>
-                <button className="bg-[#4b4bff] px-5 py-3 text-sm font-bold">Guardar</button>
+                <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
               </form>
             </Panel>
           )}
@@ -170,7 +171,7 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
           <Panel>
             <h2 className="mb-5 text-xl font-bold">Crear categoría rápida</h2>
             <form action={saveCategory} className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_110px_130px]">
-              <input type="hidden" name="redirect_to" value="/admin/productos?new=1" />
+              <input type="hidden" name="redirect_to" value="/admin/productos?new=1&saved=1" />
               <Field label="Nombre">
                 <input name="name" className={inputClass} placeholder="Abrigos" />
               </Field>
@@ -180,16 +181,16 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
               <Field label="Estado">
                 <StatusSelect />
               </Field>
-              <button className="bg-[#4b4bff] px-5 py-3 text-sm font-bold md:col-span-3">
+              <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold md:col-span-3">
                 Crear categoría
-              </button>
+              </SubmitButton>
             </form>
           </Panel>
 
           <Panel>
             <h2 className="mb-5 text-xl font-bold">Crear colección rápida</h2>
             <form action={saveCollection} className="flex flex-col gap-4">
-              <input type="hidden" name="redirect_to" value="/admin/productos?new=1" />
+              <input type="hidden" name="redirect_to" value="/admin/productos?new=1&saved=1" />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field label="Nombre">
                   <input name="name" required className={inputClass} placeholder="Invierno" />
@@ -212,16 +213,16 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
                   <StatusSelect />
                 </Field>
               </div>
-              <button className="bg-[#4b4bff] px-5 py-3 text-sm font-bold">
+              <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold">
                 Crear colección
-              </button>
+              </SubmitButton>
             </form>
           </Panel>
 
           <Panel>
             <h2 className="mb-5 text-xl font-bold">Crear tag rápido</h2>
             <form action={saveTag} className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_110px_130px]">
-              <input type="hidden" name="redirect_to" value="/admin/productos?new=1" />
+              <input type="hidden" name="redirect_to" value="/admin/productos?new=1&saved=1" />
               <Field label="Nombre">
                 <input name="name" className={inputClass} placeholder="Nuevo" />
               </Field>
@@ -231,9 +232,9 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
               <Field label="Estado">
                 <StatusSelect />
               </Field>
-              <button className="bg-[#4b4bff] px-5 py-3 text-sm font-bold md:col-span-3">
+              <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold md:col-span-3">
                 Crear tag
-              </button>
+              </SubmitButton>
             </form>
           </Panel>
         </div>

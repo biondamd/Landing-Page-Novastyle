@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SubmitButton, SuccessBanner } from "./AdminFeedback";
+
 export function PageHeader({
   title,
   count,
@@ -10,23 +12,26 @@ export function PageHeader({
   actionHref?: string;
 }) {
   return (
-    <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-start">
-      <div>
-        <Link href="/admin" className="mb-4 inline-block text-sm text-[#7b7bff]">
-          ← Volver
-        </Link>
-        <h1 className="text-4xl font-bold">{title}</h1>
-        {count ? <p className="mt-4 text-lg text-[#b9b9d4]">{count}</p> : null}
+    <>
+      <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-start">
+        <div>
+          <Link href="/admin" className="mb-4 inline-block text-sm text-[#7b7bff]">
+            ← Volver
+          </Link>
+          <h1 className="text-4xl font-bold">{title}</h1>
+          {count ? <p className="mt-4 text-lg text-[#b9b9d4]">{count}</p> : null}
+        </div>
+        {actionHref ? (
+          <Link
+            href={actionHref}
+            className="inline-flex items-center justify-center bg-[#4b4bff] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#6565ff]"
+          >
+            + Crear nueva entrada
+          </Link>
+        ) : null}
       </div>
-      {actionHref ? (
-        <Link
-          href={actionHref}
-          className="inline-flex items-center justify-center bg-[#4b4bff] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#6565ff]"
-        >
-          + Crear nueva entrada
-        </Link>
-      ) : null}
-    </div>
+      <SuccessBanner />
+    </>
   );
 }
 
@@ -71,18 +76,14 @@ export function SaveBar() {
   return (
     <aside className="border border-[#373753] bg-[#222234] p-5">
       <p className="mb-4 text-xs font-bold uppercase text-[#aaaacd]">Entrada</p>
-      <button
-        type="submit"
-        className="mb-3 w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#6565ff]"
-      >
+      <SubmitButton className="mb-3 w-full bg-[#4b4bff] px-5 py-3 text-sm font-bold">
         Publicar
-      </button>
-      <button
-        type="submit"
-        className="w-full border border-[#555574] px-5 py-3 text-sm font-bold text-[#bfc0ff] transition-colors hover:border-[#7777ff] hover:text-white"
+      </SubmitButton>
+      <SubmitButton
+        className="w-full border border-[#555574] px-5 py-3 text-sm font-bold !text-[#bfc0ff] hover:border-[#7777ff] hover:!bg-transparent hover:!text-white"
       >
         Guardar
-      </button>
+      </SubmitButton>
     </aside>
   );
 }

@@ -1,4 +1,5 @@
 import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect } from "@/components/admin/AdminUi";
+import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveCategory } from "../actions";
@@ -80,7 +81,7 @@ export default async function CategoriesPage({ searchParams }: PageProps) {
               <Field label="Estado">
                 <StatusSelect defaultValue={editing?.status ?? "published"} />
               </Field>
-              <button className="bg-[#4b4bff] px-5 py-3 text-sm font-bold">Guardar</button>
+              <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
             </form>
           </Panel>
         )}

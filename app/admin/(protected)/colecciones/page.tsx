@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect, textareaClass } from "@/components/admin/AdminUi";
+import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveCollection } from "../actions";
@@ -94,7 +95,7 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
                   <StatusSelect defaultValue={editing?.status ?? "published"} />
                 </Field>
               </div>
-              <button className="bg-[#4b4bff] px-5 py-3 text-sm font-bold">Guardar</button>
+              <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
             </form>
           </Panel>
         )}
