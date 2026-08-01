@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import {
   Field,
   inputClass,
@@ -10,6 +8,7 @@ import {
   textareaClass,
 } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
+import { ImagePickerField, type AdminImage } from "@/components/admin/ImagePickerField";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveCategory, saveCollection, saveProduct, saveTag } from "../actions";
@@ -31,7 +30,13 @@ type ProductRow = {
   collection_id: number | null;
   tag_id: number | null;
   categories?: { name: string } | null;
-  product_images?: { image_url: string }[];
+  product_images?: {
+    id: number;
+    image_url: string;
+    alt: string | null;
+    display_order: number;
+    is_primary: boolean;
+  }[];
 };
 
 export default async function ProductsAdminPage({ searchParams }: PageProps) {
@@ -41,7 +46,7 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
     await Promise.all([
       supabase
         .from("products")
-        .select("*, categories(name), product_images(image_url)")
+        .select("*, categories(name), product_images(id,image_url,alt,display_order,is_primary)")
         .order("id", { ascending: true }),
       supabase.from("categories").select("*").order("display_order", { ascending: true }),
       supabase.from("collections").select("*").order("display_order", { ascending: true }),
@@ -53,7 +58,27 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
     ? rows.find((product) => String(product.id) === params.edit)
     : undefined;
   const editing = selected ?? null;
-  const imageUrl = editing?.product_images?.[0]?.image_url ?? "";
+  const collectionImages: AdminImage[] = (collections ?? []).map((collection) => ({
+    url: collection.image_url,
+    name: collection.name,
+  }));
+  const productImages: AdminImage[] = rows.flatMap((product) =>
+    (product.product_images ?? []).map((image) => ({
+      id: image.id,
+      url: image.image_url,
+      name: image.alt ?? product.name,
+      isPrimary: image.is_primary,
+    })),
+  );
+  const productInitialImages = [...(editing?.product_images ?? [])]
+    .sort((a, b) => a.display_order - b.display_order || a.id - b.id)
+    .map((image) => ({
+      id: image.id,
+      url: image.image_url,
+      name: image.alt ?? editing?.name,
+      isPrimary: image.is_primary,
+    }));
+  const libraryImages = [...productImages, ...collectionImages];
 
   return (
     <>
@@ -105,7 +130,6 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
               </h2>
               <form action={saveProduct} className="flex flex-col gap-5">
                 <input type="hidden" name="id" value={editing?.id ?? ""} />
-                <input type="hidden" name="image_url" value={imageUrl} />
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <Field label="Nombre">
                     <input name="name" defaultValue={editing?.name ?? ""} required className={inputClass} />
@@ -148,12 +172,13 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
                 <Field label="Descripción">
                   <textarea name="description" defaultValue={editing?.description ?? ""} className={textareaClass} />
                 </Field>
-                <Field label="Imagen principal">
-                  <input name="image" type="file" accept="image/*" className={inputClass} />
-                </Field>
-                {imageUrl ? (
-                  <Image src={imageUrl} alt="" width={140} height={180} className="h-40 w-32 object-cover" />
-                ) : null}
+                <ImagePickerField
+                  label="Imágenes"
+                  mode="multiple"
+                  required
+                  initialImages={productInitialImages}
+                  libraryImages={libraryImages}
+                />
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <label className="flex items-center gap-3 text-sm font-bold">
                     <input name="sold_out" type="checkbox" defaultChecked={editing?.sold_out ?? false} className="h-5 w-5" />
@@ -202,9 +227,7 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
               <Field label="Descripción">
                 <textarea name="description" required className={textareaClass} />
               </Field>
-              <Field label="Imagen">
-                <input name="image" type="file" accept="image/*" required className={inputClass} />
-              </Field>
+              <ImagePickerField label="Imagen" required libraryImages={libraryImages} />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field label="Orden">
                   <input name="display_order" type="number" defaultValue={(collections?.length ?? 0) + 1} className={inputClass} />

@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import {
   Field,
   inputClass,
@@ -9,24 +7,37 @@ import {
   textareaClass,
 } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
+import { ImagePickerField, type AdminImage } from "@/components/admin/ImagePickerField";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveAbout } from "../actions";
 
 export default async function AboutAdminPage() {
   const supabase = await createClient();
-  const [{ data: about }, { data: stats }, { data: values }] = await Promise.all([
+  const [{ data: about }, { data: stats }, { data: values }, { data: collections }, { data: productImages }] = await Promise.all([
     supabase.from("about_section").select("*").eq("id", true).single(),
     supabase.from("about_stats").select("*").order("display_order", { ascending: true }),
     supabase.from("about_values").select("*").order("display_order", { ascending: true }),
+    supabase.from("collections").select("name, image_url").order("display_order", { ascending: true }),
+    supabase.from("product_images").select("image_url, alt").order("display_order", { ascending: true }),
   ]);
+  const libraryImages: AdminImage[] = [
+    ...(about?.image_url ? [{ url: about.image_url, name: "Nuestra historia" }] : []),
+    ...(collections ?? []).map((collection) => ({
+      url: collection.image_url,
+      name: collection.name,
+    })),
+    ...(productImages ?? []).map((image) => ({
+      url: image.image_url,
+      name: image.alt ?? undefined,
+    })),
+  ];
 
   return (
     <>
       <PageHeader title="Nuestra historia" />
       <form action={saveAbout} className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         <Panel className="flex flex-col gap-6">
-          <input type="hidden" name="image_url" value={about?.image_url ?? ""} />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <Field label="Etiqueta superior">
               <input name="badge_text" defaultValue={about?.badge_text ?? ""} required className={inputClass} />
@@ -38,17 +49,15 @@ export default async function AboutAdminPage() {
           <Field label="Texto">
             <textarea name="body" defaultValue={about?.body ?? ""} required className={`${textareaClass} min-h-52`} />
           </Field>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <Field label="Imagen">
-              <input name="image" type="file" accept="image/*" className={inputClass} />
-            </Field>
-            <Field label="Cita flotante">
-              <input name="floating_quote" defaultValue={about?.floating_quote ?? ""} required className={inputClass} />
-            </Field>
-          </div>
-          {about?.image_url ? (
-            <Image src={about.image_url} alt="" width={220} height={160} className="h-36 w-52 object-cover" />
-          ) : null}
+          <ImagePickerField
+            label="Imagen"
+            required
+            initialImages={about?.image_url ? [{ url: about.image_url, name: "Nuestra historia" }] : []}
+            libraryImages={libraryImages}
+          />
+          <Field label="Cita flotante">
+            <input name="floating_quote" defaultValue={about?.floating_quote ?? ""} required className={inputClass} />
+          </Field>
 
           <div>
             <p className="mb-3 text-sm font-bold">Estadísticas</p>

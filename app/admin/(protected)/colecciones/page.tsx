@@ -1,7 +1,6 @@
-import Image from "next/image";
-
 import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect, textareaClass } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
+import { ImagePickerField, type AdminImage } from "@/components/admin/ImagePickerField";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveCollection } from "../actions";
@@ -13,14 +12,26 @@ type PageProps = {
 export default async function CollectionsAdminPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const supabase = await createClient();
-  const { data: collections } = await supabase
-    .from("collections")
-    .select("*")
-    .order("display_order", { ascending: true });
+  const [{ data: collections }, { data: productImages }, { data: about }] = await Promise.all([
+    supabase.from("collections").select("*").order("display_order", { ascending: true }),
+    supabase.from("product_images").select("image_url, alt").order("display_order", { ascending: true }),
+    supabase.from("about_section").select("image_url").eq("id", true).maybeSingle(),
+  ]);
   const selected = params?.edit
     ? collections?.find((collection) => String(collection.id) === params.edit)
     : undefined;
   const editing = selected ?? null;
+  const libraryImages: AdminImage[] = [
+    ...(collections ?? []).map((collection) => ({
+      url: collection.image_url,
+      name: collection.name,
+    })),
+    ...(productImages ?? []).map((image) => ({
+      url: image.image_url,
+      name: image.alt ?? undefined,
+    })),
+    ...(about?.image_url ? [{ url: about.image_url, name: "Nuestra historia" }] : []),
+  ];
 
   return (
     <>
@@ -69,7 +80,6 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
             </h2>
             <form action={saveCollection} className="flex flex-col gap-5">
               <input type="hidden" name="id" value={editing?.id ?? ""} />
-              <input type="hidden" name="image_url" value={editing?.image_url ?? ""} />
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <Field label="Nombre">
                   <input name="name" defaultValue={editing?.name ?? ""} required className={inputClass} />
@@ -81,12 +91,12 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
               <Field label="Descripción">
                 <textarea name="description" defaultValue={editing?.description ?? ""} required className={textareaClass} />
               </Field>
-              <Field label="Imagen">
-                <input name="image" type="file" accept="image/*" className={inputClass} />
-              </Field>
-              {editing?.image_url ? (
-                <Image src={editing.image_url} alt="" width={160} height={210} className="h-40 w-32 object-cover" />
-              ) : null}
+              <ImagePickerField
+                label="Imagen"
+                required
+                initialImages={editing?.image_url ? [{ url: editing.image_url, name: editing.name }] : []}
+                libraryImages={libraryImages}
+              />
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <Field label="Orden">
                   <input name="display_order" type="number" defaultValue={editing?.display_order ?? (collections?.length ?? 0) + 1} className={inputClass} />

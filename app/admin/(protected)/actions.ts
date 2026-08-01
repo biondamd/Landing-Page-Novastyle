@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { SUPABASE_STORAGE_BUCKET } from "@/lib/supabase/config";
+import { SUPABASE_STORAGE_BUCKET, SUPABASE_URL } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 function text(formData: FormData, key: string) {
@@ -33,11 +33,7 @@ function slugify(value: string) {
     .replace(/^-|-$/g, "");
 }
 
-async function uploadImage(formData: FormData, key: string, folder: string, fallback: string | null) {
-  const file = formData.get(key);
-
-  if (!(file instanceof File) || file.size === 0) return fallback;
-
+async function uploadFile(file: File, folder: string) {
   const supabase = await createClient();
   const extension = file.name.split(".").pop() ?? "jpg";
   const path = `${folder}/${crypto.randomUUID()}.${extension}`;
@@ -49,6 +45,51 @@ async function uploadImage(formData: FormData, key: string, folder: string, fall
 
   const { data } = supabase.storage.from(SUPABASE_STORAGE_BUCKET).getPublicUrl(path);
   return data.publicUrl;
+}
+
+async function uploadImage(formData: FormData, key: string, folder: string, fallback: string | null) {
+  const file = formData.get(key);
+
+  if (!(file instanceof File) || file.size === 0) return fallback;
+
+  return uploadFile(file, folder);
+}
+
+function storagePathFromPublicUrl(url: string | null) {
+  if (!url || !SUPABASE_URL) return null;
+
+  try {
+    const parsed = new URL(url);
+    const publicBase = new URL(SUPABASE_URL);
+    const prefix = `/storage/v1/object/public/${SUPABASE_STORAGE_BUCKET}/`;
+
+    if (parsed.origin !== publicBase.origin || !parsed.pathname.startsWith(prefix)) return null;
+
+    return decodeURIComponent(parsed.pathname.slice(prefix.length));
+  } catch {
+    return null;
+  }
+}
+
+async function isImageReferenced(url: string) {
+  const supabase = await createClient();
+  const [{ data: collection }, { data: about }, { data: productImage }] = await Promise.all([
+    supabase.from("collections").select("id").eq("image_url", url).limit(1).maybeSingle(),
+    supabase.from("about_section").select("id").eq("image_url", url).limit(1).maybeSingle(),
+    supabase.from("product_images").select("id").eq("image_url", url).limit(1).maybeSingle(),
+  ]);
+
+  return Boolean(collection || about || productImage);
+}
+
+async function deleteUnusedImage(url: string | null) {
+  const path = storagePathFromPublicUrl(url);
+
+  if (!path || !url) return;
+  if (await isImageReferenced(url)) return;
+
+  const supabase = await createClient();
+  await supabase.storage.from(SUPABASE_STORAGE_BUCKET).remove([path]);
 }
 
 async function revalidatePublic() {
@@ -160,7 +201,14 @@ export async function saveCollection(formData: FormData) {
   const supabase = await createClient();
   const id = text(formData, "id");
   const name = text(formData, "name");
+  const previous =
+    id
+      ? await supabase.from("collections").select("image_url").eq("id", Number(id)).maybeSingle()
+      : null;
   const image = await uploadImage(formData, "image", "colecciones", nullableText(formData, "image_url"));
+
+  if (!image) throw new Error("Selecciona una imagen para la colección.");
+
   const payload = {
     name,
     slug: slugify(name),
@@ -174,8 +222,55 @@ export async function saveCollection(formData: FormData) {
   if (id) await supabase.from("collections").update(payload).eq("id", Number(id));
   else await supabase.from("collections").insert(payload);
 
+  if (previous?.data?.image_url && previous.data.image_url !== image) {
+    await deleteUnusedImage(previous.data.image_url);
+  }
+
   await revalidatePublic();
   redirect(nullableText(formData, "redirect_to") ?? "/admin/colecciones?saved=1");
+}
+
+type ProductImagePayload = {
+  id: number | null;
+  key: string;
+  imageUrl: string;
+  displayOrder: number;
+  isPrimary: boolean;
+};
+
+async function productImagePayloads(formData: FormData, name: string) {
+  const keys = formData.getAll("product_image_key").map(String);
+  const primaryKey = text(formData, "product_image_primary");
+  const payloads: ProductImagePayload[] = [];
+
+  for (const [index, key] of keys.entries()) {
+    const file = formData.get(`product_image_file:${key}`);
+    const existingUrl = nullableText(formData, `product_image_url:${key}`);
+    const imageUrl = file instanceof File && file.size > 0
+      ? await uploadFile(file, "productos")
+      : existingUrl;
+
+    if (!imageUrl) continue;
+
+    payloads.push({
+      id: numberValue(formData, `product_image_id:${key}`) || null,
+      key,
+      imageUrl,
+      displayOrder: numberValue(formData, `product_image_order:${key}`) || index + 1,
+      isPrimary: key === primaryKey,
+    });
+  }
+
+  if (!payloads.length) throw new Error("Selecciona al menos una imagen para el producto.");
+
+  if (!payloads.some((payload) => payload.isPrimary)) {
+    payloads[0].isPrimary = true;
+  }
+
+  return payloads.map((payload) => ({
+    ...payload,
+    alt: name,
+  }));
 }
 
 export async function saveProduct(formData: FormData) {
@@ -203,18 +298,42 @@ export async function saveProduct(formData: FormData) {
   if (result.error || !result.data) throw new Error(result.error?.message ?? "No se guardó producto.");
 
   const productId = Number(result.data.id);
-  const imageUrl = await uploadImage(formData, "image", "productos", nullableText(formData, "image_url"));
+  const [{ data: previousImages }, nextImages] = await Promise.all([
+    supabase.from("product_images").select("id,image_url").eq("product_id", productId),
+    productImagePayloads(formData, name),
+  ]);
+  const keptIds = nextImages
+    .map((image) => image.id)
+    .filter((id): id is number => Boolean(id));
+  const removedImages = (previousImages ?? []).filter((image) => !keptIds.includes(Number(image.id)));
 
-  if (imageUrl) {
-    await supabase.from("product_images").delete().eq("product_id", productId).eq("is_primary", true);
-    await supabase.from("product_images").insert({
-      product_id: productId,
-      image_url: imageUrl,
-      alt: name,
-      display_order: 1,
-      is_primary: true,
-    });
+  if (removedImages.length) {
+    await supabase
+      .from("product_images")
+      .delete()
+      .eq("product_id", productId)
+      .in("id", removedImages.map((image) => image.id));
   }
+
+  await supabase.from("product_images").update({ is_primary: false }).eq("product_id", productId);
+
+  for (const image of nextImages) {
+    const payload = {
+      product_id: productId,
+      image_url: image.imageUrl,
+      alt: image.alt,
+      display_order: image.displayOrder,
+      is_primary: image.isPrimary,
+    };
+
+    if (image.id) {
+      await supabase.from("product_images").update(payload).eq("id", image.id).eq("product_id", productId);
+    } else {
+      await supabase.from("product_images").insert(payload);
+    }
+  }
+
+  await Promise.all(removedImages.map((image) => deleteUnusedImage(image.image_url)));
 
   await revalidatePublic();
   redirect("/admin/productos?saved=1");
@@ -277,7 +396,10 @@ export async function saveNewsletter(formData: FormData) {
 
 export async function saveAbout(formData: FormData) {
   const supabase = await createClient();
+  const previous = await supabase.from("about_section").select("image_url").eq("id", true).maybeSingle();
   const image = await uploadImage(formData, "image", "secciones", nullableText(formData, "image_url"));
+
+  if (!image) throw new Error("Selecciona una imagen para Nuestra historia.");
 
   await supabase.from("about_section").upsert({
     id: true,
@@ -312,6 +434,10 @@ export async function saveAbout(formData: FormData) {
         active: booleanValue(formData, `value_active:${id}`),
       })
       .eq("id", Number(id));
+  }
+
+  if (previous.data?.image_url && previous.data.image_url !== image) {
+    await deleteUnusedImage(previous.data.image_url);
   }
 
   await revalidatePublic();
