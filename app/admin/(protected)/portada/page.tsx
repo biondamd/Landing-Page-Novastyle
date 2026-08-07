@@ -3,6 +3,7 @@ import {
   inputClass,
   PageHeader,
   Panel,
+  selectClass,
   StatusSelect,
   textareaClass,
 } from "@/components/admin/AdminUi";
@@ -30,7 +31,7 @@ export default async function HeroAdminPage() {
               <input name="badge_text" defaultValue={hero?.badge_text ?? ""} required className={inputClass} />
             </Field>
             <Field label="Producto destacado">
-              <select name="featured_product_id" defaultValue={hero?.featured_product_id ?? ""} className={inputClass}>
+              <select name="featured_product_id" defaultValue={hero?.featured_product_id ?? ""} className={selectClass}>
                 <option value="">Elige un producto</option>
                 {(products ?? []).map((product) => (
                   <option key={product.id} value={product.id}>{product.name}</option>

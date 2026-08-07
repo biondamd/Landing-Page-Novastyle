@@ -61,11 +61,14 @@ export function Field({
 export const inputClass =
   "border border-[#555574] bg-transparent px-4 py-3 text-base font-normal text-white outline-none placeholder:text-[#aaaacd] focus:border-[#7777ff]";
 
+export const selectClass =
+  "border border-[#555574] bg-[#222234] px-4 py-3 text-base font-normal text-white outline-none [color-scheme:dark] focus:border-[#7777ff] [&>option]:bg-[#222234] [&>option]:text-white";
+
 export const textareaClass = `${inputClass} min-h-32 resize-y`;
 
 export function StatusSelect({ defaultValue = "published" }: { defaultValue?: string }) {
   return (
-    <select name="status" defaultValue={defaultValue} className={inputClass}>
+    <select name="status" defaultValue={defaultValue} className={selectClass}>
       <option value="draft">Borrador</option>
       <option value="published">Publicado</option>
     </select>
