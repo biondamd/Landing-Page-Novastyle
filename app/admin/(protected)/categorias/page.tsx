@@ -1,8 +1,9 @@
 import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 import { createClient } from "@/lib/supabase/server";
 
-import { saveCategory } from "../actions";
+import { deleteCategory, saveCategory } from "../actions";
 
 type PageProps = {
   searchParams?: Promise<{ edit?: string; new?: string }>;
@@ -50,9 +51,17 @@ export default async function CategoriesPage({ searchParams }: PageProps) {
                   <td className="px-4 py-4 text-[#b9b9d4]">{category.display_order}</td>
                   <td className="px-4 py-4"><StatusBadge status={category.status} /></td>
                   <td className="px-4 py-4 text-right">
-                    <a href={`/admin/categorias?edit=${category.id}`} className="text-[#7777ff]">
-                      Editar
-                    </a>
+                    <div className="flex items-center justify-end gap-4">
+                      <a href={`/admin/categorias?edit=${category.id}`} className="text-[#7777ff]">
+                        Editar
+                      </a>
+                      <form action={deleteCategory}>
+                        <input type="hidden" name="id" value={category.id} />
+                        <DeleteButton
+                          confirmMessage={`¿Eliminar la categoría "${category.name}"? No debe tener productos asociados.`}
+                        />
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

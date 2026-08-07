@@ -7,9 +7,10 @@ import {
   StatusSelect,
 } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 import { createClient } from "@/lib/supabase/server";
 
-import { savePromotion } from "../actions";
+import { deletePromotion, savePromotion } from "../actions";
 
 type PageProps = {
   searchParams?: Promise<{ edit?: string; new?: string }>;
@@ -82,9 +83,15 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
                   </td>
                   <td className="px-4 py-4"><StatusBadge status={promotion.status} /></td>
                   <td className="px-4 py-4 text-right">
-                    <a href={`/admin/promociones?edit=${promotion.id}`} className="text-[#7777ff]">
-                      Editar
-                    </a>
+                    <div className="flex items-center justify-end gap-4">
+                      <a href={`/admin/promociones?edit=${promotion.id}`} className="text-[#7777ff]">
+                        Editar
+                      </a>
+                      <form action={deletePromotion}>
+                        <input type="hidden" name="id" value={promotion.id} />
+                        <DeleteButton confirmMessage={`¿Eliminar la promoción "${promotion.name}"?`} />
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

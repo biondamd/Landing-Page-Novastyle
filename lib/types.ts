@@ -46,6 +46,18 @@ export type ProductOption = {
   swatch?: string;
 };
 
+/** Promoción vigente que muestra el apartado de promociones de la landing. */
+export type Promotion = {
+  id: number;
+  name: string;
+  percentage: number;
+  scope: "product" | "category" | "collection";
+  /** Nombre de aquello a lo que se aplica (categoría, colección o producto). */
+  targetLabel: string | null;
+  startsAt: string;
+  endsAt: string;
+};
+
 export type Collection = {
   id: number;
   name: string;

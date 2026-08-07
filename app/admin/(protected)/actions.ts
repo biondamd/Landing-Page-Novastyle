@@ -206,6 +206,27 @@ export async function saveCategory(formData: FormData) {
   redirect(nullableText(formData, "redirect_to") ?? "/admin/categorias?saved=1");
 }
 
+export async function deleteCategory(formData: FormData) {
+  const supabase = await createClient();
+  const id = Number(text(formData, "id"));
+  if (!id) redirect("/admin/categorias");
+
+  // Una categoría con productos no se puede borrar (romperia la relación).
+  const { count } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .eq("category_id", id);
+
+  if (count && count > 0) {
+    redirect(`/admin/categorias?error=${encodeURIComponent("Tiene productos asociados.")}`);
+  }
+
+  await supabase.from("categories").delete().eq("id", id);
+
+  await revalidatePublic();
+  redirect("/admin/categorias?deleted=1");
+}
+
 export async function saveTag(formData: FormData) {
   const supabase = await createClient();
   const id = text(formData, "id");
@@ -435,6 +456,18 @@ export async function savePromotion(formData: FormData) {
 
   await revalidatePublic();
   redirect("/admin/promociones?saved=1");
+}
+
+export async function deletePromotion(formData: FormData) {
+  const supabase = await createClient();
+  const id = Number(text(formData, "id"));
+  if (!id) redirect("/admin/promociones");
+
+  // Las tablas de alcance (promotion_products/…) tienen ON DELETE CASCADE.
+  await supabase.from("promotions").delete().eq("id", id);
+
+  await revalidatePublic();
+  redirect("/admin/promociones?deleted=1");
 }
 
 export async function saveNewsletter(formData: FormData) {

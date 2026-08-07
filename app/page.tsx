@@ -5,6 +5,7 @@ import Collections from "@/components/sections/Collections";
 import Footer from "@/components/sections/Footer";
 import Hero from "@/components/sections/Hero";
 import Newsletter from "@/components/sections/Newsletter";
+import Promotions from "@/components/sections/Promotions";
 import {
   getAboutContent,
   getCategories,
@@ -15,6 +16,7 @@ import {
   getHeroContent,
   getNewsletterContent,
   getProducts,
+  getPromotions,
 } from "@/lib/data";
 
 export default async function Home() {
@@ -29,6 +31,7 @@ export default async function Home() {
     about,
     newsletter,
     footer,
+    promotions,
   ] = await Promise.all([
     getProducts(),
     getFeaturedProduct(),
@@ -39,6 +42,7 @@ export default async function Home() {
     getAboutContent(),
     getNewsletterContent(),
     getFooterContent(),
+    getPromotions(),
   ]);
 
   return (
@@ -49,6 +53,7 @@ export default async function Home() {
       <main>
         <Hero featured={featured} content={hero} />
         <Collections collections={collections} />
+        <Promotions promotions={promotions} />
         <Catalog products={products} categories={categories} />
         <About content={about} />
         <Newsletter content={newsletter} />

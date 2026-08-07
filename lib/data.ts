@@ -5,6 +5,7 @@ import {
   HEADER_CONTENT,
   HERO_CONTENT,
   PRODUCTS,
+  PROMOTIONS,
   NEWSLETTER_CONTENT,
 } from "./mock-data";
 import { hasSupabaseConfig } from "./supabase/config";
@@ -17,6 +18,7 @@ import type {
   HeroContent,
   NewsletterContent,
   Product,
+  Promotion,
 } from "./types";
 
 type ProductRow = {
@@ -162,6 +164,35 @@ export async function getCollections(): Promise<Collection[]> {
 
     if (error || !data) return COLLECTIONS;
     return (data as CollectionRow[]).map(mapCollection);
+  });
+}
+
+type PromotionRow = {
+  id: number;
+  name: string;
+  percentage: number;
+  scope: "product" | "category" | "collection";
+  starts_at: string;
+  ends_at: string;
+  target_label: string | null;
+};
+
+/** Promociones vigentes para la landing. TODO(supabase): public_promotions_view */
+export async function getPromotions(): Promise<Promotion[]> {
+  return withFallback(PROMOTIONS, async () => {
+    const supabase = await createClient();
+    const { data, error } = await supabase.from("public_promotions_view").select("*");
+
+    if (error || !data) return PROMOTIONS;
+    return (data as PromotionRow[]).map((row) => ({
+      id: row.id,
+      name: row.name,
+      percentage: row.percentage,
+      scope: row.scope,
+      targetLabel: row.target_label,
+      startsAt: row.starts_at,
+      endsAt: row.ends_at,
+    }));
   });
 }
 

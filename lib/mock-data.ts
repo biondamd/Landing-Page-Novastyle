@@ -14,6 +14,7 @@ import type {
   NewsletterContent,
   Product,
   ProductOption,
+  Promotion,
 } from "./types";
 
 /**
@@ -189,6 +190,29 @@ export const COLLECTIONS: Collection[] = [
     itemCount: 42,
     // Comparte la foto del Blazer Sastre del catálogo (blazer gris).
     image: "/images/productos/blazer-sastre.jpg",
+  },
+];
+
+// Promociones vigentes de ejemplo (respaldo cuando Supabase no está disponible).
+// Con la migración aplicada, la landing las lee de public_promotions_view.
+export const PROMOTIONS: Promotion[] = [
+  {
+    id: 1,
+    name: "Rebaja de Temporada",
+    percentage: 20,
+    scope: "category",
+    targetLabel: "Vestidos",
+    startsAt: "2026-06-01T00:00:00Z",
+    endsAt: "2026-09-30T23:59:59Z",
+  },
+  {
+    id: 2,
+    name: "Blusas seleccionadas",
+    percentage: 15,
+    scope: "category",
+    targetLabel: "Blusas",
+    startsAt: "2026-06-15T00:00:00Z",
+    endsAt: "2026-08-31T23:59:59Z",
   },
 ];
 
