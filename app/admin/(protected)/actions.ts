@@ -24,6 +24,33 @@ function booleanValue(formData: FormData, key: string) {
   return formData.get(key) === "on";
 }
 
+type VariantInput = { label: string; available: boolean; swatch?: string };
+
+/** Lee el JSON de tallas/colores que serializa el VariantEditor del panel. */
+function parseVariants(formData: FormData, key: string): VariantInput[] {
+  const raw = formData.get(key);
+  if (typeof raw !== "string" || !raw) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter(
+        (item): item is { label: string; available?: boolean; swatch?: string } =>
+          Boolean(item) && typeof (item as { label?: unknown }).label === "string",
+      )
+      .map((item) => ({
+        label: item.label.trim(),
+        available: item.available !== false,
+        swatch: item.swatch ? String(item.swatch).trim() : undefined,
+      }))
+      .filter((item) => item.label.length > 0);
+  } catch {
+    return [];
+  }
+}
+
 function slugify(value: string) {
   return value
     .normalize("NFD")
@@ -334,6 +361,38 @@ export async function saveProduct(formData: FormData) {
   }
 
   await Promise.all(removedImages.map((image) => deleteUnusedImage(image.image_url)));
+
+  // Variantes: se reemplazan por completo las del producto (borrar + insertar).
+  const sizes = parseVariants(formData, "sizes");
+  const colors = parseVariants(formData, "colors");
+
+  await Promise.all([
+    supabase.from("product_sizes").delete().eq("product_id", productId),
+    supabase.from("product_colors").delete().eq("product_id", productId),
+  ]);
+
+  if (sizes.length) {
+    await supabase.from("product_sizes").insert(
+      sizes.map((size, index) => ({
+        product_id: productId,
+        label: size.label,
+        available: size.available,
+        display_order: index + 1,
+      })),
+    );
+  }
+
+  if (colors.length) {
+    await supabase.from("product_colors").insert(
+      colors.map((variant, index) => ({
+        product_id: productId,
+        label: variant.label,
+        swatch: variant.swatch ?? null,
+        available: variant.available,
+        display_order: index + 1,
+      })),
+    );
+  }
 
   await revalidatePublic();
   redirect("/admin/productos?saved=1");

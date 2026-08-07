@@ -9,6 +9,7 @@ import {
 } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { ImagePickerField, type AdminImage } from "@/components/admin/ImagePickerField";
+import VariantEditor, { type Variant } from "@/components/admin/VariantEditor";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveCategory, saveCollection, saveProduct, saveTag } from "../actions";
@@ -79,6 +80,34 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
       isPrimary: image.is_primary,
     }));
   const libraryImages = [...productImages, ...collectionImages];
+
+  // Variantes del producto en edición. La consulta tolera que las tablas aún no
+  // existan (antes de aplicar la migración): en ese caso los editores van vacíos.
+  let editingSizes: Variant[] = [];
+  let editingColors: Variant[] = [];
+  if (editing) {
+    const [{ data: sizes }, { data: colors }] = await Promise.all([
+      supabase
+        .from("product_sizes")
+        .select("label,available,display_order")
+        .eq("product_id", editing.id)
+        .order("display_order", { ascending: true }),
+      supabase
+        .from("product_colors")
+        .select("label,swatch,available,display_order")
+        .eq("product_id", editing.id)
+        .order("display_order", { ascending: true }),
+    ]);
+    editingSizes = (sizes ?? []).map((size) => ({
+      label: size.label,
+      available: size.available,
+    }));
+    editingColors = (colors ?? []).map((c) => ({
+      label: c.label,
+      available: c.available,
+      swatch: c.swatch ?? undefined,
+    }));
+  }
 
   return (
     <>
@@ -178,6 +207,21 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
                   required
                   initialImages={productInitialImages}
                   libraryImages={libraryImages}
+                />
+                <VariantEditor
+                  name="sizes"
+                  legend="Tallas"
+                  addLabel="Añadir talla"
+                  placeholder="XS, S, M…"
+                  initial={editingSizes}
+                />
+                <VariantEditor
+                  name="colors"
+                  legend="Colores"
+                  withSwatch
+                  addLabel="Añadir color"
+                  placeholder="Arena, Negro…"
+                  initial={editingColors}
                 />
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <label className="flex items-center gap-3 text-sm font-bold">

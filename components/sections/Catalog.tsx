@@ -1,10 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
-import { Heart, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
+import ProductDetail from "@/components/sections/ProductDetail";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
@@ -25,8 +25,22 @@ export default function Catalog({ products, categories }: CatalogProps) {
   const [filter, setFilter] = useState<Filter>(ALL);
   const [collectionFilter, setCollectionFilter] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  // Set de ids marcados. Persiste mientras la página siga abierta.
-  const [wishlist, setWishlist] = useState<ReadonlySet<number>>(new Set());
+  // Producto cuya ficha de detalle está abierta (null = ninguna).
+  const [selected, setSelected] = useState<Product | null>(null);
+
+  // Al cerrar la ficha, el foco vuelve al nombre de la card que la abrió.
+  const closeDetail = useCallback(() => {
+    setSelected((current) => {
+      if (current) {
+        requestAnimationFrame(() => {
+          document
+            .querySelector<HTMLElement>(`#producto-${current.id} [data-detail-trigger]`)
+            ?.focus();
+        });
+      }
+      return null;
+    });
+  }, []);
 
   const filters: Filter[] = [ALL, ...categories];
   const filtered = products.filter((product) => {
@@ -41,15 +55,6 @@ export default function Catalog({ products, categories }: CatalogProps) {
     setFilter(next);
     setCollectionFilter(null);
     setVisibleCount(PAGE_SIZE); // Cada filtro empieza desde su primera página.
-  };
-
-  const toggleWishlist = (id: number) => {
-    setWishlist((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
   };
 
   useEffect(() => {
@@ -157,7 +162,7 @@ export default function Catalog({ products, categories }: CatalogProps) {
 
                       {(product.sold || product.tag) && (
                         <span
-                          className={`absolute left-3 top-3 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest ${
+                          className={`pointer-events-none absolute left-3 top-3 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest ${
                             product.sold
                               ? "bg-muted text-muted-foreground"
                               : "bg-background text-foreground"
@@ -167,46 +172,28 @@ export default function Catalog({ products, categories }: CatalogProps) {
                         </span>
                       )}
 
-                      <div className="touch-reveal absolute right-3 top-3 flex translate-x-8 flex-col gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:translate-x-0 group-focus-within:opacity-100">
-                        <button
-                          type="button"
-                          onClick={() => toggleWishlist(product.id)}
-                          aria-pressed={wishlist.has(product.id)}
-                          aria-label={
-                            wishlist.has(product.id)
-                              ? `Quitar ${product.name} de favoritos`
-                              : `Añadir ${product.name} a favoritos`
-                          }
-                          className={`flex h-11 w-11 items-center justify-center bg-background transition-colors ${
-                            wishlist.has(product.id)
-                              ? "text-destructive"
-                              : "text-foreground/60 hover:text-foreground"
-                          }`}
-                        >
-                          <Heart
-                            size={16}
-                            aria-hidden="true"
-                            fill={wishlist.has(product.id) ? "currentColor" : "none"}
-                          />
-                        </button>
-
-                        {!product.sold && (
-                          <button
-                            type="button"
-                            aria-label={`Añadir ${product.name} al carrito`}
-                            className="flex h-11 w-11 items-center justify-center bg-foreground text-primary-foreground transition-colors hover:bg-accent hover:text-foreground"
-                          >
-                            <ShoppingBag size={16} aria-hidden="true" />
-                          </button>
-                        )}
-                      </div>
+                      {/* Cubre la imagen para abrir la ficha con un clic. Es
+                          redundante para el teclado (lo hace el nombre), por eso
+                          va oculto a lectores de pantalla y fuera del tabulador. */}
+                      <button
+                        type="button"
+                        aria-hidden="true"
+                        tabIndex={-1}
+                        onClick={() => setSelected(product)}
+                        className="absolute inset-0 z-10 cursor-pointer"
+                      />
                     </div>
 
                     <div className="flex items-start justify-between gap-2 pb-2 pt-4">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium leading-snug text-foreground">
+                        <button
+                          type="button"
+                          data-detail-trigger
+                          onClick={() => setSelected(product)}
+                          className="text-left text-sm font-medium leading-snug text-foreground underline-offset-2 hover:underline"
+                        >
                           {product.name}
-                        </p>
+                        </button>
                         <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                           {product.color}
                         </p>
@@ -243,6 +230,8 @@ export default function Catalog({ products, categories }: CatalogProps) {
           </div>
         )}
       </div>
+
+      {selected && <ProductDetail product={selected} onClose={closeDetail} />}
     </section>
   );
 }

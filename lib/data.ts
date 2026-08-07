@@ -34,6 +34,9 @@ type ProductRow = {
   collection_slug: string | null;
   tag_name: string | null;
   image_url: string | null;
+  // Arrays JSON que aporta la vista (ausentes hasta aplicar la migración de variantes).
+  sizes?: { label: string; available: boolean }[] | null;
+  colors?: { label: string; available: boolean; swatch: string | null }[] | null;
 };
 
 type CollectionRow = {
@@ -69,6 +72,18 @@ function mapProduct(row: ProductRow): Product {
     color: row.color,
     image: row.image_url ?? "/images/productos/vestido-carmesi.jpg",
     description: row.description,
+    // La vista devuelve variantes como arrays JSON. Si la migración aún no se
+    // aplicó, la columna no existe (undefined) y withVariants recurre al mock.
+    sizes: row.sizes
+      ? row.sizes.map((size) => ({ label: size.label, available: size.available }))
+      : undefined,
+    colors: row.colors
+      ? row.colors.map((c) => ({
+          label: c.label,
+          available: c.available,
+          swatch: c.swatch ?? undefined,
+        }))
+      : undefined,
     tag: row.tag_name,
     sold: row.sold_out,
     published: true,
@@ -97,6 +112,21 @@ async function withFallback<T>(fallback: T, query: () => Promise<T>): Promise<T>
   }
 }
 
+// Respaldo de variantes por si la migración de tallas/colores aún no se aplicó:
+// mientras la vista no devuelva esas columnas, la ficha de detalle usa las del
+// mock, emparejadas por id. Con la migración aplicada, la vista manda y esto no
+// interviene (así las ediciones del panel se reflejan en la landing).
+const VARIANTS_BY_ID = new Map(
+  PRODUCTS.map((product) => [product.id, { sizes: product.sizes, colors: product.colors }]),
+);
+
+function withVariants(product: Product): Product {
+  // Si la vista ya trajo variantes (aunque sean listas vacías), se respetan.
+  if (product.sizes !== undefined || product.colors !== undefined) return product;
+  const variants = VARIANTS_BY_ID.get(product.id);
+  return variants ? { ...product, sizes: variants.sizes, colors: variants.colors } : product;
+}
+
 export async function getProducts(): Promise<Product[]> {
   return withFallback(PRODUCTS, async () => {
     const supabase = await createClient();
@@ -106,7 +136,7 @@ export async function getProducts(): Promise<Product[]> {
       .order("id", { ascending: true });
 
     if (error || !data) return PRODUCTS;
-    return (data as ProductRow[]).map(mapProduct);
+    return (data as ProductRow[]).map(mapProduct).map(withVariants);
   });
 }
 
@@ -166,14 +196,18 @@ export async function getHeaderContent(): Promise<HeaderContent> {
 
     return {
       logoText: header?.logo_text ?? HEADER_CONTENT.logoText,
+      // Sin enlaces (lista vacía o sin permisos de lectura) se usan los del mock:
+      // el `?? ` no basta porque un array vacío no es null.
       links:
-        links?.map((link) => ({
-          id: link.id,
-          label: link.label,
-          href: link.href,
-          order: link.display_order,
-          active: link.active,
-        })) ?? HEADER_CONTENT.links,
+        links && links.length
+          ? links.map((link) => ({
+              id: link.id,
+              label: link.label,
+              href: link.href,
+              order: link.display_order,
+              active: link.active,
+            }))
+          : HEADER_CONTENT.links,
     };
   });
 }

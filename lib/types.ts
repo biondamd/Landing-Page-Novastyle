@@ -27,11 +27,23 @@ export type Product = {
   image: string;
   images?: ProductImage[];
   description?: string | null;
+  /** Tallas disponibles del producto, con la disponibilidad de cada una. */
+  sizes?: ProductOption[];
+  /** Colores disponibles del producto, con la disponibilidad de cada uno. */
+  colors?: ProductOption[];
   /** Etiqueta destacada ("Nuevo", "Popular"…). null cuando no lleva. */
   tag: string | null;
   /** Agotado: la card se atenúa y oculta el botón de carrito. */
   sold: boolean;
   published?: boolean;
+};
+
+/** Opción de variante (talla o color) con su disponibilidad individual. */
+export type ProductOption = {
+  label: string;
+  available: boolean;
+  /** Solo para colores: muestra de color en CSS (hex o gradiente). */
+  swatch?: string;
 };
 
 export type Collection = {

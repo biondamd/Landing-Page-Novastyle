@@ -13,7 +13,21 @@ import type {
   HeroContent,
   NewsletterContent,
   Product,
+  ProductOption,
 } from "./types";
+
+/**
+ * Tallas de un producto: la escalera que ofrece (XS–3XL según el corte), con
+ * todas disponibles salvo las que se listen como agotadas.
+ */
+function sizeSet(ladder: readonly string[], soldOut: string[] = []): ProductOption[] {
+  return ladder.map((label) => ({ label, available: !soldOut.includes(label) }));
+}
+
+/** Atajo para declarar un color con su muestra y disponibilidad. */
+function color(label: string, swatch: string, available = true): ProductOption {
+  return { label, swatch, available };
+}
 
 // El set de fotos es limitado, así que —siguiendo el diseño de referencia—
 // algunas imágenes se comparten entre catálogo y colecciones. Los productos sin
@@ -28,6 +42,12 @@ export const PRODUCTS: Product[] = [
     price: 189,
     category: "Vestidos",
     color: "Arena",
+    sizes: sizeSet(["XS", "S", "M", "L", "XL"], ["XS"]),
+    colors: [
+      color("Arena", "#d9c7a8"),
+      color("Blanco roto", "#efe7d6"),
+      color("Terracota", "#b5623c", false),
+    ],
     tag: "Nuevo",
     sold: false,
     // TODO(foto): /images/productos/vestido-lino-natural.jpg
@@ -40,6 +60,8 @@ export const PRODUCTS: Product[] = [
     price: 129,
     category: "Blusas",
     color: "Crudo",
+    sizes: sizeSet(["XS", "S", "M", "L", "XL", "XXL"], ["L"]),
+    colors: [color("Crudo", "#ede4d3"), color("Negro", "#1a1714")],
     tag: "Popular",
     sold: false,
     image: "/images/productos/blusa-seda-cruda.jpg",
@@ -50,6 +72,9 @@ export const PRODUCTS: Product[] = [
     price: 229,
     category: "Vestidos",
     color: "Rojo",
+    // "Últimas unidades": quedan pocas tallas.
+    sizes: sizeSet(["S", "M", "L"], ["L"]),
+    colors: [color("Carmesí", "#9e2b25"), color("Vino", "#5b2130", false)],
     tag: "Últimas unidades",
     sold: false,
     image: "/images/productos/vestido-carmesi.jpg",
@@ -61,6 +86,12 @@ export const PRODUCTS: Product[] = [
     category: "Outerwear",
     // La foto es un tweed gris, no negro como decía el prototipo.
     color: "Gris",
+    sizes: sizeSet(["S", "M", "L", "XL", "XXL"]),
+    colors: [
+      color("Gris", "#8a8a88"),
+      color("Negro", "#1a1714"),
+      color("Camel", "#b08d57"),
+    ],
     tag: "Nuevo",
     sold: false,
     image: "/images/productos/blazer-sastre.jpg",
@@ -71,6 +102,12 @@ export const PRODUCTS: Product[] = [
     price: 159,
     category: "Pantalones",
     color: "Camel",
+    sizes: sizeSet(["XS", "S", "M", "L", "XL"], ["XS", "XL"]),
+    colors: [
+      color("Camel", "#b08d57"),
+      color("Negro", "#1a1714"),
+      color("Arena", "#d9c7a8", false),
+    ],
     tag: null,
     sold: false,
     // TODO(foto): /images/productos/pantalon-wide-leg.jpg
@@ -83,6 +120,9 @@ export const PRODUCTS: Product[] = [
     price: 139,
     category: "Blusas",
     color: "Blanco",
+    // Agotada: todas las tallas y colores sin stock.
+    sizes: sizeSet(["XS", "S", "M", "L"], ["XS", "S", "M", "L"]),
+    colors: [color("Blanco", "#f2ece0", false)],
     tag: "Edición limitada",
     sold: true,
     // Agotada: usa la foto de la percha vacía de "Verano 2026".
@@ -94,6 +134,11 @@ export const PRODUCTS: Product[] = [
     price: 199,
     category: "Vestidos",
     color: "Multicolor",
+    sizes: sizeSet(["XS", "S", "M", "L", "XL", "XXL"], ["XXL"]),
+    colors: [
+      color("Estampado crema", "linear-gradient(135deg,#e9dfc9,#c9a98a,#8aa9c9)"),
+      color("Estampado azul", "linear-gradient(135deg,#c9d3e0,#7c93b5,#3f5878)"),
+    ],
     tag: "Nuevo",
     sold: false,
     // TODO(foto): /images/productos/vestido-midi-floral.jpg
@@ -106,6 +151,12 @@ export const PRODUCTS: Product[] = [
     price: 115,
     category: "Blusas",
     color: "Azul",
+    sizes: sizeSet(["S", "M", "L", "XL", "XXL", "3XL"]),
+    colors: [
+      color("Azul", "#6e86a8"),
+      color("Blanco", "#efe7d6"),
+      color("Celeste", "#afc3d6", false),
+    ],
     tag: null,
     sold: false,
     image: "/images/productos/camisa-oversize.jpg",
