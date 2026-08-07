@@ -2,6 +2,7 @@ import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect } from 
 import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { createClient } from "@/lib/supabase/server";
+import { Pencil } from "lucide-react";
 
 import { deleteCategory, saveCategory } from "../actions";
 
@@ -12,10 +13,23 @@ type PageProps = {
 export default async function CategoriesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const supabase = await createClient();
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .order("display_order", { ascending: true });
+  const [{ data: categories }, { data: publishedProducts }] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("*")
+      .order("display_order", { ascending: true }),
+    supabase
+      .from("products")
+      .select("category_id")
+      .eq("status", "published"),
+  ]);
+  const productCountByCategory = new Map<number, number>();
+  for (const product of publishedProducts ?? []) {
+    productCountByCategory.set(
+      product.category_id,
+      (productCountByCategory.get(product.category_id) ?? 0) + 1,
+    );
+  }
   const selected = params?.edit
     ? categories?.find((category) => String(category.id) === params.edit)
     : undefined;
@@ -38,8 +52,9 @@ export default async function CategoriesPage({ searchParams }: PageProps) {
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Slug</th>
                 <th className="px-4 py-3">Orden</th>
+                <th className="px-4 py-3">Productos</th>
                 <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -49,10 +64,12 @@ export default async function CategoriesPage({ searchParams }: PageProps) {
                   <td className="px-4 py-4">{category.name}</td>
                   <td className="px-4 py-4 text-[#b9b9d4]">{category.slug}</td>
                   <td className="px-4 py-4 text-[#b9b9d4]">{category.display_order}</td>
+                  <td className="px-4 py-4 text-[#b9b9d4]">{productCountByCategory.get(category.id) ?? 0}</td>
                   <td className="px-4 py-4"><StatusBadge status={category.status} /></td>
                   <td className="px-4 py-4 text-right">
                     <div className="flex items-center justify-end gap-4">
-                      <a href={`/admin/categorias?edit=${category.id}`} className="text-[#7777ff]">
+                      <a href={`/admin/categorias?edit=${category.id}`} className="inline-flex items-center gap-1 text-[#7777ff]">
+                        <Pencil size={14} aria-hidden="true" />
                         Editar
                       </a>
                       <form action={deleteCategory}>

@@ -2,6 +2,7 @@ import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect, textar
 import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { ImagePickerField, type AdminImage } from "@/components/admin/ImagePickerField";
 import { createClient } from "@/lib/supabase/server";
+import { Pencil } from "lucide-react";
 
 import { saveCollection } from "../actions";
 
@@ -12,11 +13,24 @@ type PageProps = {
 export default async function CollectionsAdminPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const supabase = await createClient();
-  const [{ data: collections }, { data: productImages }, { data: about }] = await Promise.all([
+  const [{ data: collections }, { data: productImages }, { data: about }, { data: publishedProducts }] = await Promise.all([
     supabase.from("collections").select("*").order("display_order", { ascending: true }),
     supabase.from("product_images").select("image_url, alt").order("display_order", { ascending: true }),
     supabase.from("about_section").select("image_url").eq("id", true).maybeSingle(),
+    supabase
+      .from("products")
+      .select("collection_id")
+      .eq("status", "published")
+      .not("collection_id", "is", null),
   ]);
+  const productCountByCollection = new Map<number, number>();
+  for (const product of publishedProducts ?? []) {
+    if (!product.collection_id) continue;
+    productCountByCollection.set(
+      product.collection_id,
+      (productCountByCollection.get(product.collection_id) ?? 0) + 1,
+    );
+  }
   const selected = params?.edit
     ? collections?.find((collection) => String(collection.id) === params.edit)
     : undefined;
@@ -50,8 +64,9 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Slug</th>
                 <th className="px-4 py-3">Etiqueta</th>
+                <th className="px-4 py-3">Productos</th>
                 <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -61,9 +76,11 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
                   <td className="px-4 py-4">{collection.name}</td>
                   <td className="px-4 py-4 text-[#b9b9d4]">{collection.slug}</td>
                   <td className="px-4 py-4">{collection.badge_label}</td>
+                  <td className="px-4 py-4 text-[#b9b9d4]">{productCountByCollection.get(collection.id) ?? 0}</td>
                   <td className="px-4 py-4"><StatusBadge status={collection.status} /></td>
                   <td className="px-4 py-4 text-right">
-                    <a href={`/admin/colecciones?edit=${collection.id}`} className="text-[#7777ff]">
+                    <a href={`/admin/colecciones?edit=${collection.id}`} className="inline-flex items-center gap-1 text-[#7777ff]">
+                      <Pencil size={14} aria-hidden="true" />
                       Editar
                     </a>
                   </td>
