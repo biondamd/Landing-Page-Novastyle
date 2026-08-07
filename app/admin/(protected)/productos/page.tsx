@@ -41,9 +41,10 @@ export default async function ProductsAdminPage({ searchParams }: PageProps) {
         title="Productos"
         count={`${rows.length} entradas encontradas`}
         actionHref="/admin/productos/nuevo"
+        actionPlacement="tableEnd"
       />
 
-      <Panel>
+      <Panel className="overflow-x-auto">
         <table className="w-full min-w-[860px] text-left">
           <thead className="text-xs uppercase text-[#aaaacd]">
             <tr className="border-b border-[#33334f]">

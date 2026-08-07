@@ -1,4 +1,4 @@
-import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect, textareaClass } from "@/components/admin/AdminUi";
+import { AdminModal, Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect, textareaClass } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { ImagePickerField, type AdminImage } from "@/components/admin/ImagePickerField";
 import { createClient } from "@/lib/supabase/server";
@@ -53,10 +53,11 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
         title="Colecciones"
         count={`${collections?.length ?? 0} entradas encontradas`}
         actionHref="/admin/colecciones?new=1"
+        actionPlacement="tableEnd"
       />
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_520px]">
-        <Panel>
+      <div className="grid grid-cols-1 gap-6">
+        <Panel className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
             <thead className="text-xs uppercase text-[#aaaacd]">
               <tr className="border-b border-[#33334f]">
@@ -90,11 +91,12 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
           </table>
         </Panel>
 
-        {(params?.new || editing) && (
-          <Panel>
-            <h2 className="mb-6 text-2xl font-bold">
-              {editing ? "Editar colección" : "Crear colección"}
-            </h2>
+        {params?.new || editing ? (
+          <AdminModal
+            title={editing ? "Editar colección" : "Crear colección"}
+            closeHref="/admin/colecciones"
+            maxWidth="max-w-3xl"
+          >
             <form action={saveCollection} className="flex flex-col gap-5">
               <input type="hidden" name="id" value={editing?.id ?? ""} />
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -124,8 +126,8 @@ export default async function CollectionsAdminPage({ searchParams }: PageProps) 
               </div>
               <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
             </form>
-          </Panel>
-        )}
+          </AdminModal>
+        ) : null}
       </div>
     </>
   );

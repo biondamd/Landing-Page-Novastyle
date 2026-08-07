@@ -1,4 +1,4 @@
-import { Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect } from "@/components/admin/AdminUi";
+import { AdminModal, Field, inputClass, PageHeader, Panel, StatusBadge, StatusSelect } from "@/components/admin/AdminUi";
 import { SubmitButton } from "@/components/admin/AdminFeedback";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { createClient } from "@/lib/supabase/server";
@@ -41,10 +41,11 @@ export default async function CategoriesPage({ searchParams }: PageProps) {
         title="Categorías"
         count={`${categories?.length ?? 0} entradas encontradas`}
         actionHref="/admin/categorias?new=1"
+        actionPlacement="tableEnd"
       />
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_420px]">
-        <Panel>
+      <div className="grid grid-cols-1 gap-6">
+        <Panel className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left">
             <thead className="text-xs uppercase text-[#aaaacd]">
               <tr className="border-b border-[#33334f]">
@@ -86,11 +87,12 @@ export default async function CategoriesPage({ searchParams }: PageProps) {
           </table>
         </Panel>
 
-        {(params?.new || editing) && (
-          <Panel>
-            <h2 className="mb-6 text-2xl font-bold">
-              {editing ? "Editar categoría" : "Crear categoría"}
-            </h2>
+        {params?.new || editing ? (
+          <AdminModal
+            title={editing ? "Editar categoría" : "Crear categoría"}
+            closeHref="/admin/categorias"
+            maxWidth="max-w-xl"
+          >
             <form action={saveCategory} className="flex flex-col gap-5">
               <input type="hidden" name="id" value={editing?.id ?? ""} />
               <Field label="Nombre">
@@ -109,8 +111,8 @@ export default async function CategoriesPage({ searchParams }: PageProps) {
               </Field>
               <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
             </form>
-          </Panel>
-        )}
+          </AdminModal>
+        ) : null}
       </div>
     </>
   );
