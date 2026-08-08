@@ -34,21 +34,59 @@ type ProductRow = {
   }[];
 };
 
+type ProductImageRow = {
+  id: number;
+  image_url: string;
+  alt: string | null;
+  is_primary: boolean;
+  products?: { name: string } | { name: string }[] | null;
+};
+
+function productName(product: ProductImageRow["products"]) {
+  if (Array.isArray(product)) return product[0]?.name;
+  return product?.name;
+}
+
 export async function ProductForm({ productId }: ProductFormProps) {
   const supabase = await createClient();
-  const [{ data: categories }, { data: collections }, { data: tags }, { data: products }] =
-    await Promise.all([
-      supabase.from("categories").select("*").order("display_order", { ascending: true }),
-      supabase.from("collections").select("*").order("display_order", { ascending: true }),
-      supabase.from("tags").select("*").order("display_order", { ascending: true }),
-      supabase
+  const productQuery = productId
+    ? supabase
         .from("products")
-        .select("*, product_images(id,image_url,alt,display_order,is_primary)")
-        .order("id", { ascending: true }),
-    ]);
+        .select(`
+          id,
+          name,
+          price,
+          color,
+          description,
+          sold_out,
+          status,
+          category_id,
+          collection_id,
+          tag_id,
+          product_images(id,image_url,alt,display_order,is_primary)
+        `)
+        .eq("id", productId)
+        .maybeSingle()
+    : Promise.resolve({ data: null });
 
-  const rows = (products ?? []) as ProductRow[];
-  const editing = productId ? rows.find((product) => product.id === productId) ?? null : null;
+  const [
+    { data: categories },
+    { data: collections },
+    { data: tags },
+    { data: editingProduct },
+    { data: imageRows },
+  ] = await Promise.all([
+    supabase.from("categories").select("id,name,display_order").order("display_order", { ascending: true }),
+    supabase.from("collections").select("id,name,image_url,display_order").order("display_order", { ascending: true }),
+    supabase.from("tags").select("id,name,display_order").order("display_order", { ascending: true }),
+    productQuery,
+    supabase
+      .from("product_images")
+      .select("id,image_url,alt,is_primary,products(name)")
+      .order("display_order", { ascending: true }),
+  ]);
+
+  const editing = (editingProduct ?? null) as ProductRow | null;
 
   if (productId && !editing) notFound();
 
@@ -56,14 +94,12 @@ export async function ProductForm({ productId }: ProductFormProps) {
     url: collection.image_url,
     name: collection.name,
   }));
-  const productImages: AdminImage[] = rows.flatMap((product) =>
-    (product.product_images ?? []).map((image) => ({
-      id: image.id,
-      url: image.image_url,
-      name: image.alt ?? product.name,
-      isPrimary: image.is_primary,
-    })),
-  );
+  const productImages: AdminImage[] = ((imageRows ?? []) as ProductImageRow[]).map((image) => ({
+    id: image.id,
+    url: image.image_url,
+    name: image.alt ?? productName(image.products),
+    isPrimary: image.is_primary,
+  }));
   const productInitialImages = [...(editing?.product_images ?? [])]
     .sort((a, b) => a.display_order - b.display_order || a.id - b.id)
     .map((image) => ({
