@@ -8,7 +8,6 @@ import {
   Image as ImageIcon,
   Layers,
   LogOut,
-  Mail,
   Menu,
   Package,
   PanelTop,
@@ -36,7 +35,6 @@ const NAV_GROUPS = [
     links: [
       { href: "/admin/cabecera", label: "Cabecera", icon: PanelTop },
       { href: "/admin/portada", label: "Portada", icon: ImageIcon },
-      { href: "/admin/comunidad", label: "Comunidad", icon: Mail },
       { href: "/admin/nuestra-historia", label: "Nuestra historia", icon: BookOpenText },
       { href: "/admin/pie-de-pagina", label: "Pie de página", icon: Layers },
     ],
