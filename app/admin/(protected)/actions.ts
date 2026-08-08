@@ -206,6 +206,28 @@ export async function saveCategory(formData: FormData) {
   redirect(nullableText(formData, "redirect_to") ?? "/admin/categorias?saved=1");
 }
 
+export async function createCategoryRelation(formData: FormData) {
+  const supabase = await createClient();
+  const name = text(formData, "name");
+  if (!name) throw new Error("Ingresa un nombre para la categoría.");
+
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({
+      name,
+      slug: slugify(name),
+      display_order: numberValue(formData, "display_order"),
+      status: text(formData, "status"),
+    })
+    .select("id,name")
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  await revalidatePublic();
+  return data;
+}
+
 export async function deleteCategory(formData: FormData) {
   const supabase = await createClient();
   const id = Number(text(formData, "id"));
@@ -245,6 +267,28 @@ export async function saveTag(formData: FormData) {
   redirect(nullableText(formData, "redirect_to") ?? "/admin/productos?saved=1");
 }
 
+export async function createTagRelation(formData: FormData) {
+  const supabase = await createClient();
+  const name = text(formData, "name");
+  if (!name) throw new Error("Ingresa un nombre para el tag.");
+
+  const { data, error } = await supabase
+    .from("tags")
+    .insert({
+      name,
+      slug: slugify(name),
+      display_order: numberValue(formData, "display_order"),
+      status: text(formData, "status"),
+    })
+    .select("id,name")
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  await revalidatePublic();
+  return data;
+}
+
 export async function saveCollection(formData: FormData) {
   const supabase = await createClient();
   const id = text(formData, "id");
@@ -276,6 +320,34 @@ export async function saveCollection(formData: FormData) {
 
   await revalidatePublic();
   redirect(nullableText(formData, "redirect_to") ?? "/admin/colecciones?saved=1");
+}
+
+export async function createCollectionRelation(formData: FormData) {
+  const supabase = await createClient();
+  const name = text(formData, "name");
+  if (!name) throw new Error("Ingresa un nombre para la colección.");
+
+  const image = await uploadImage(formData, "image", "colecciones", nullableText(formData, "image_url"));
+  if (!image) throw new Error("Selecciona una imagen para la colección.");
+
+  const { data, error } = await supabase
+    .from("collections")
+    .insert({
+      name,
+      slug: slugify(name),
+      badge_label: text(formData, "badge_label"),
+      description: text(formData, "description"),
+      image_url: image,
+      display_order: numberValue(formData, "display_order"),
+      status: text(formData, "status"),
+    })
+    .select("id,name")
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  await revalidatePublic();
+  return data;
 }
 
 type ProductImagePayload = {

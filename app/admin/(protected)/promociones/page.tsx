@@ -1,8 +1,10 @@
 import {
   Field,
+  AdminModal,
   inputClass,
   PageHeader,
   Panel,
+  selectClass,
   StatusBadge,
   StatusSelect,
 } from "@/components/admin/AdminUi";
@@ -54,10 +56,11 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
         title="Promociones"
         count={`${rows.length} entradas encontradas`}
         actionHref="/admin/promociones?new=1"
+        actionPlacement="tableEnd"
       />
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_520px]">
-        <Panel>
+      <div className="grid grid-cols-1 gap-6">
+        <Panel className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left">
             <thead className="text-xs uppercase text-[#aaaacd]">
               <tr className="border-b border-[#33334f]">
@@ -99,11 +102,12 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
           </table>
         </Panel>
 
-        {(params?.new || editing) && (
-          <Panel>
-            <h2 className="mb-6 text-2xl font-bold">
-              {editing ? "Editar promoción" : "Crear promoción"}
-            </h2>
+        {params?.new || editing ? (
+          <AdminModal
+            title={editing ? "Editar promoción" : "Crear promoción"}
+            closeHref="/admin/promociones"
+            maxWidth="max-w-3xl"
+          >
             <form action={savePromotion} className="flex flex-col gap-5">
               <input type="hidden" name="id" value={editing?.id ?? ""} />
               <Field label="Nombre">
@@ -114,7 +118,7 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
                   <input name="percentage" type="number" min="1" max="99" defaultValue={editing?.percentage ?? 10} required className={inputClass} />
                 </Field>
                 <Field label="Alcance">
-                  <select name="scope" defaultValue={editing?.scope ?? "product"} className={inputClass}>
+                  <select name="scope" defaultValue={editing?.scope ?? "product"} className={selectClass}>
                     <option value="product">Producto</option>
                     <option value="category">Categoría</option>
                     <option value="collection">Colección</option>
@@ -123,7 +127,7 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
               </div>
               <div className="grid grid-cols-1 gap-5">
                 <Field label="Producto objetivo">
-                  <select name="product_target_id" className={inputClass}>
+                  <select name="product_target_id" className={selectClass}>
                     <option value="">Selecciona si el alcance es producto</option>
                     {(products ?? []).map((product) => (
                       <option key={product.id} value={product.id}>{product.name}</option>
@@ -131,7 +135,7 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
                   </select>
                 </Field>
                 <Field label="Categoría objetivo">
-                  <select name="category_target_id" className={inputClass}>
+                  <select name="category_target_id" className={selectClass}>
                     <option value="">Selecciona si el alcance es categoría</option>
                     {(categories ?? []).map((category) => (
                       <option key={category.id} value={category.id}>{category.name}</option>
@@ -139,7 +143,7 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
                   </select>
                 </Field>
                 <Field label="Colección objetivo">
-                  <select name="collection_target_id" className={inputClass}>
+                  <select name="collection_target_id" className={selectClass}>
                     <option value="">Selecciona si el alcance es colección</option>
                     {(collections ?? []).map((collection) => (
                       <option key={collection.id} value={collection.id}>{collection.name}</option>
@@ -160,8 +164,8 @@ export default async function PromotionsPage({ searchParams }: PageProps) {
               </Field>
               <SubmitButton className="bg-[#4b4bff] px-5 py-3 text-sm font-bold" />
             </form>
-          </Panel>
-        )}
+          </AdminModal>
+        ) : null}
       </div>
     </>
   );

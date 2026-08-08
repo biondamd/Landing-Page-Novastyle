@@ -3,6 +3,7 @@ import {
   inputClass,
   PageHeader,
   Panel,
+  selectClass,
   StatusSelect,
   textareaClass,
 } from "@/components/admin/AdminUi";
@@ -83,7 +84,7 @@ export default async function AboutAdminPage() {
               {(values ?? []).map((value) => (
                 <div key={value.id} className="grid grid-cols-1 gap-4 border-b border-[#373753] p-4 last:border-0 md:grid-cols-[150px_1fr_1fr_90px]">
                   <input type="hidden" name="value_id" value={value.id} />
-                  <select name={`value_icon:${value.id}`} defaultValue={value.icon} className={inputClass}>
+                  <select name={`value_icon:${value.id}`} defaultValue={value.icon} className={selectClass}>
                     <option value="leaf">Hoja</option>
                     <option value="scissors">Tijeras</option>
                     <option value="heart">Corazón</option>
