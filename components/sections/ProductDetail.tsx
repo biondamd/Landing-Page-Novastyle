@@ -4,6 +4,8 @@ import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useId, useRef } from "react";
 
+import WhatsAppIcon from "@/components/ui/WhatsAppIcon";
+import { WHATSAPP_URL } from "@/lib/contact";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
@@ -199,6 +201,17 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                 </ul>
               </div>
             )}
+
+            {/* Consulta por WhatsApp */}
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center justify-center gap-2 bg-[#25d366] px-6 py-3.5 text-sm font-medium tracking-wide text-white transition-colors hover:bg-[#1fb457]"
+            >
+              <WhatsAppIcon size={18} />
+              Consultar por WhatsApp
+            </a>
           </div>
         </div>
       </div>

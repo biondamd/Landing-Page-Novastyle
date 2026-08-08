@@ -5,6 +5,7 @@ import Collections from "@/components/sections/Collections";
 import Footer from "@/components/sections/Footer";
 import Hero from "@/components/sections/Hero";
 import Promotions from "@/components/sections/Promotions";
+import WhatsAppFab from "@/components/sections/WhatsAppFab";
 import {
   getAboutContent,
   getCategories,
@@ -54,6 +55,7 @@ export default async function Home() {
         <About content={about} />
       </main>
       <Footer content={footer} />
+      <WhatsAppFab />
     </>
   );
 }
