@@ -78,12 +78,24 @@ export default function Footer({ content }: FooterProps) {
             </p>
             <div className="mt-6 flex gap-4">
               {socialLinks.get("instagram")?.href ? (
-                <a href={socialLinks.get("instagram")?.href ?? "#"} aria-label="Instagram" className="transition-colors hover:text-accent">
+                <a
+                  href={socialLinks.get("instagram")?.href ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="transition-colors hover:text-accent"
+                >
                   <Instagram size={18} />
                 </a>
               ) : null}
               {socialLinks.get("facebook")?.href ? (
-                <a href={socialLinks.get("facebook")?.href ?? "#"} aria-label="Facebook" className="transition-colors hover:text-accent">
+                <a
+                  href={socialLinks.get("facebook")?.href ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="transition-colors hover:text-accent"
+                >
                   <Facebook size={18} />
                 </a>
               ) : null}

@@ -310,8 +310,18 @@ export const FOOTER_CONTENT: FooterContent = {
   logoText: "Novastyle",
   description: "Moda consciente, hecha a mano, diseñada para ti.",
   socialLinks: [
-    { id: 1, platform: "instagram", href: null, active: true },
-    { id: 2, platform: "facebook", href: null, active: true },
+    {
+      id: 1,
+      platform: "instagram",
+      href: "https://www.instagram.com/novastyle.peru?igsh=c3liN3dtbmY4eDdx",
+      active: true,
+    },
+    {
+      id: 2,
+      platform: "facebook",
+      href: "https://www.facebook.com/share/19Lw49fDNY/?mibextid=wwXIfr",
+      active: true,
+    },
   ],
   groups: [
     {
